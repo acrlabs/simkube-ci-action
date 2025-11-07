@@ -1,0 +1,89 @@
+---
+name: Run Simkube Simulation
+description: Runs a simkube simulation on an ephemeral runner
+
+inputs:
+  simulation-name:
+    description: Name of the simulation to run
+    required: true
+
+  trace-path:
+    description: Path to the trace file
+    required: true
+
+  simulation-duration:
+    description: Simulation duration
+    required: true
+
+  speed:
+    description: Simulation speed
+    required: false
+
+outputs:
+  simulation-id:
+    description: Unique simulation ID
+    value: ${{ steps.setup.outputs.simulation-id }}
+
+  prometheus-endpoint:
+    description: Prometheus endpoint where metrics were sent
+    value: ${{ steps.run.outputs.prometheus-endpoint }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build skctl command
+      id: build-cmd
+      shell: bash
+      run: |
+        # Base command
+        CMD="skctl run '${{ inputs.simulation-name }}'"
+
+        # Required
+        CMD="$CMD --trace-path '${{ inputs.trace-path }}'"
+        CMD="$CMD --duration '${{ inputs.duration }}'"
+
+        # Add speed if provided
+        if [ -n "${{ inputs.speed }}" ]; then
+          CMD="$CMD --speed ${{ inputs.speed }}"
+        fi
+
+        echo "command=$CMD" >> $GITHUB_OUTPUT
+
+        echo ""
+        echo "Command to execute:"
+        echo "$CMD"
+        echo ""
+
+    - name: Run Simkube simulation
+      shell: bash
+      env:
+        SIMULATION_ID: ${{ steps.setup.outputs.simulation-id }}
+      run: |
+        echo "Running simulation..."
+        echo ""
+
+        # Execute the command
+        eval ${{ steps.build-cmd.outputs.command }}
+
+        EXIT_CODE=$?
+
+        if [ $EXIT_CODE -eq 0 ]; then
+          echo ""
+          echo "Simulation completed successfully!"
+        else
+          echo ""
+          echo "Simulation failed with exit code: $EXIT_CODE"
+          exit $EXIT_CODE
+        fi
+
+    - name: Display summary
+      shell: bash
+      if: success()
+      run: |
+        echo ""
+        echo "Simulation Completed!"
+        echo ""
+        echo "Simulation ID: ${{ steps.setup.outputs.simulation-id }}"
+        echo "Name:          ${{ inputs.simulation-name }}"
+        echo "Completed at:  $(date)"
+        echo ""

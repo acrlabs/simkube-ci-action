@@ -1,0 +1,130 @@
+---
+name: Run Simkube Simulation
+
+on:  # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      ami-id:
+        description: AMI ID for SimKube Runner AMI
+        required: false
+        default: ami-00f46cfa46d5aae3b
+        type: string
+
+      instance-type:
+        description: EC2 instance type
+        required: false
+        default: c7a.2xlarge
+        type: string
+
+      aws-region:
+        description: AWS region to launch in
+        required: false
+        default: us-east-1
+        type: string
+
+      subnet-id:
+        description: Subnet ID (optional)
+        required: false
+        type: string
+
+      security-group-ids:
+        description: Comma-separated security group IDs (optional)
+        required: false
+        type: string
+
+      runner-labels:
+        description: Additional labels for the runner (comma-separated)
+        required: false
+        default: simkube,ephemeral,aws
+        type: string
+
+      simulation-name:
+        description: Name of the simulation to run
+        required: true
+        type: string
+
+      trace-path:
+        description: Path to the trace file
+        required: true
+        type: string
+
+      simulation-duration:
+        description: Simulation duration
+        required: true
+        type: string
+
+      speed:
+        description: Simulation speed
+        required: false
+        type: string
+
+jobs:
+  launch-runner:
+    name: Launch custom Simkube runner in AWS EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        # TODO: add versioning logic when stable
+
+      - name: Launch Ephemeral Runner
+        uses: ./actions/launch-runner
+        with:
+          ami-id: ${{ inputs.ami-id }}
+          instance-type: ${{ inputs.instance-type }}
+          aws-region: ${{ inputs.aws-region }}
+          runner-labels: simkube,ephemeral
+          github-pat: ${{ secrets.GITHUB_PAT }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  simulate:
+    name: Run Simkube Simulation
+    needs: launch-runner
+    runs-on: [self-hosted, simkube]
+    outputs:
+      simulation-id: ${{ steps.run.outputs.simulation-id }}
+      prometheus-endpoing: ${{ steps.run.outputs.prometheus-endpoint }}
+
+    steps:
+      - name: Checkout repo with trace
+        uses: actions/checkout@v6
+        with:
+          path: trace-repo
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        # TODO: add versioning logic when stable
+        with:
+          path: simkube-ci
+
+      - name: Copy trace file to expected location
+        shell: bash
+        run: |
+          sudo mkdir -p /data
+          sudo chown ubuntu:ubuntu /data
+
+          TRACE_FILE="${{ inputs.trace-path }}"
+          TRACE_FILE="${TRACE_FILE#./}"
+
+          if [ ! -f "$TRACE_FILE" ]; then
+            echo "ERROR: Trace file not found at $TRACE_FILE"
+            exit 1
+          fi
+
+          cp "$TRACE_FILE" /data/trace
+
+          if [ ! -s /data/trace ]; then
+            echo "ERROR: Trace file is empty"
+            exit 1
+          fi
+
+      - name: Run simulation
+        id: run
+        uses: ./simkube-ci/run-simulation
+        with:
+          name: ${{ inputs.simulation-name }}
+          duration: ${{ inputs.duration }}
+          speed: ${{ inputs.speed }}
+          repetitions: ${{ inputs.repetitions }}

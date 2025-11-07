@@ -1,0 +1,252 @@
+---
+name: Launch Simkube Runner
+description: Launches a pre-configured GitHub Actions runnner in EC2
+
+inputs:
+  ami-id:
+    description: AMI ID for SimKube Runner AMI
+    required: false
+    default: ami-00f46cfa46d5aae3b
+
+  instance-type:
+    description: EC2 instance type
+    required: false
+    default: c7a.2xlarge
+
+  aws-region:
+    description: AWS region to launch in
+    required: false
+    default: us-east-1
+
+  subnet-id:
+    description: Subnet ID (optional)
+    required: false
+
+  security-group-ids:
+    description: Comma-separated security group IDs (optional)
+    required: false
+
+  runner-labels:
+    description: Additional labels for the runner (comma-separated)
+    required: false
+    default: simkube,ephemeral,aws
+
+  github-pat:
+    description: GitHub Personal Access Token with repo scope
+    required: true
+
+outputs:
+  instance-id:
+    description: EC2 instance ID for runner that was launched
+    value: ${{ steps.launch.outputs.instance-id }}
+  runner-name:
+    description: 'Name of the registered runner'
+    value: ${{ steps.userdata.outputs.runner-name }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.ami-id }}" ]; then
+          echo "ERROR: ami-id is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.github-pat }}" ]; then
+          echo "ERROR: github-pat is required"
+          echo "Please create a GitHub PAT with 'repo' scope and add it as a secret"
+          exit 1
+        fi
+
+        if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+          echo "ERROR: AWS credentials must be set as environment variables"
+          echo "Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+          exit 1
+        fi
+
+    - name: Generate runner registration token
+      id: token
+      shell: bash
+      run: |
+        echo "Generating runner registration token..."
+
+        TOKEN=$(curl -sS -X POST \
+          -H "Authorization: token ${{ inputs.github-pat }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token" \
+          | jq -r .token)
+
+        if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
+          echo "ERROR: Failed to generate runner token"
+          echo "Please verify your GitHub PAT has 'repo' scope and hasn't expired"
+          exit 1
+        fi
+
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+        echo "✓ Generated runner registration token"
+
+    - name: Create user data script
+      id: userdata
+      shell: bash
+      env:
+        REPO_URL: "https://github.com/${{ github.repository }}"
+        RUNNER_LABELS: "${{ inputs.runner-labels }}"
+        RUNNER_NAME: "runner-${{ github.run_id }}-$(date +%s)"
+        RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
+      run: |
+        RUNNER_NAME="runner-${{ github.run_id }}-$(date +%s)"
+        echo "runner-name=$RUNNER_NAME" >> $GITHUB_OUTPUT
+
+        # Create user data script
+        cat > /tmp/user-data.sh << 'USERDATA_EOF'
+        #!/bin/bash
+        set -e
+
+        echo "Setting up GitHub Runner..."
+
+        # Create environment file for systemd service
+        cat > /etc/github-runner.env << 'ENVFILE'
+        GITHUB_REPOSITORY_URL=REPO_URL_PLACEHOLDER
+        GITHUB_RUNNER_LABELS=RUNNER_LABELS_PLACEHOLDER
+        GITHUB_RUNNER_NAME=RUNNER_NAME_PLACEHOLDER
+        GITHUB_RUNNER_TOKEN=RUNNER_TOKEN_PLACEHOLDER
+        ENVFILE
+
+        echo "✓ Created runner configuration"
+
+        # Start the runner service
+        echo "Starting GitHub Actions runner service..."
+        systemctl start github-runner
+
+        echo "✓ Runner service started"
+        echo "Setup complete at: $(date)"
+        USERDATA_EOF
+
+        # Replace placeholders with actual runner name
+        sed -i "s/REPO_URL_PLACEHOLDER/$REPO_URL/" /tmp/user-data.sh
+        sed -i "s/RUNNER_LABELS_PLACEHOLDER/$RUNNER_LABELS/" /tmp/user-data.sh
+        sed -i "s/RUNNER_NAME_PLACEHOLDER/$RUNNER_NAME/" /tmp/user-data.sh
+        sed -i "s/RUNNER_TOKEN_PLACEHOLDER/$RUNNER_TOKEN/" /tmp/user-data.sh
+
+        echo "✓ Created user data script for runner: $RUNNER_NAME"
+
+    - name: Launch EC2 instance
+      id: launch
+      shell: bash
+      env:
+        AWS_REGION: ${{ inputs.aws-region }}
+      run: |
+        echo "Launching EC2 instance in $AWS_REGION..."
+
+        # Build AWS CLI command
+        AWS_CMD="aws ec2 run-instances \
+          --region $AWS_REGION \
+          --image-id ${{ inputs.ami-id }} \
+          --instance-type ${{ inputs.instance-type }} \
+          --instance-initiated-shutdown-behavior terminate \
+          --user-data file:///tmp/user-data.sh \
+          --tag-specifications 'ResourceType=instance,Tags=[
+            {Key=Name,Value=github-runner-${{ github.run_id }}},
+            {Key=GitHubRepository,Value=${{ github.repository }}},
+            {Key=GitHubRunId,Value=${{ github.run_id }}},
+            {Key=ManagedBy,Value=github-actions},
+            {Key=Ephemeral,Value=true}
+          ]'"
+
+        # Add optional parameters
+        if [ -n "${{ inputs.subnet-id }}" ]; then
+          AWS_CMD="$AWS_CMD --subnet-id ${{ inputs.subnet-id }}"
+        fi
+
+        if [ -n "${{ inputs.security-group-ids }}" ]; then
+          SG_IDS=$(echo "${{ inputs.security-group-ids }}" | tr ',' ' ')
+          AWS_CMD="$AWS_CMD --security-group-ids $SG_IDS"
+        fi
+
+        # Launch instance
+        echo "Executing: aws ec2 run-instances..."
+        RESPONSE=$(eval $AWS_CMD 2>&1)
+
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Failed to launch instance"
+          echo "$RESPONSE"
+          exit 1
+        fi
+
+        INSTANCE_ID=$(echo "$RESPONSE" | jq -r '.Instances[0].InstanceId')
+
+        if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" == "null" ]; then
+          echo "ERROR: Could not parse instance ID from response"
+          echo "$RESPONSE"
+          exit 1
+        fi
+
+        echo "instance-id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+        echo "✓ Launched instance: $INSTANCE_ID"
+
+    - name: Wait for instance to be running
+      shell: bash
+      env:
+        AWS_REGION: ${{ inputs.aws-region }}
+      run: |
+        INSTANCE_ID="${{ steps.launch.outputs.instance-id }}"
+        echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
+
+        aws ec2 wait instance-running \
+          --region $AWS_REGION \
+          --instance-ids $INSTANCE_ID
+
+        echo "✓ Instance is running"
+
+    - name: Wait for runner to register
+      shell: bash
+      run: |
+        RUNNER_NAME="${{ steps.userdata.outputs.runner-name }}"
+
+        echo "Waiting for runner '$RUNNER_NAME' to register with GitHub..."
+        echo "This may take 1-3 minutes while the instance boots and starts the runner service."
+
+        MAX_WAIT=300  # 5 minutes
+        ELAPSED=0
+        SLEEP_INTERVAL=10
+
+        while [ $ELAPSED -lt $MAX_WAIT ]; do
+          # Check if runner is registered
+          RUNNER_STATUS=$(curl -sS \
+            -H "Authorization: token ${{ inputs.github-pat }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runners" \
+            | jq -r ".runners[] | select(.name == \"$RUNNER_NAME\") | .status")
+
+          if [ "$RUNNER_STATUS" == "online" ]; then
+            echo "✓ Runner '$RUNNER_NAME' is online and ready!"
+            exit 0
+          elif [ -n "$RUNNER_STATUS" ]; then
+            echo "Runner found but status is: $RUNNER_STATUS (waiting for 'online'...)"
+          else
+            echo "Waiting for runner to register... (${ELAPSED}s / ${MAX_WAIT}s)"
+          fi
+
+          sleep $SLEEP_INTERVAL
+          ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+        done
+
+        echo "ERROR: Runner failed to register within ${MAX_WAIT} seconds"
+        echo "Instance ID: ${{ steps.launch.outputs.instance-id }}"
+        echo "Check EC2 console and instance logs for details"
+        exit 1
+
+    - name: Summary
+      shell: bash
+      if: success()
+      run: |
+        echo "Runner Launch Successful"
+        echo "Instance ID: ${{ steps.launch.outputs.instance-id }}"
+        echo "Runner Name: ${{ steps.userdata.outputs.runner-name }}"
+        echo "Region: ${{ inputs.aws-region }}"
+        echo "Instance Type: ${{ inputs.instance-type }}"
+        echo ""
+        echo "The runner is now available for jobs with labels: ${{ inputs.runner-labels }}"
+        echo "The runner will automatically terminate after completing one job (ephemeral mode)."
