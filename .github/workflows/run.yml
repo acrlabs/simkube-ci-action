@@ -48,7 +48,7 @@ on:  # yamllint disable-line rule:truthy
         required: true
         type: string
 
-      simulation-duration:
+      duration:
         description: Simulation duration
         required: true
         type: string
@@ -85,7 +85,7 @@ jobs:
     runs-on: [self-hosted, simkube]
     outputs:
       simulation-id: ${{ steps.run.outputs.simulation-id }}
-      prometheus-endpoing: ${{ steps.run.outputs.prometheus-endpoint }}
+      prometheus-endpoint: ${{ steps.run.outputs.prometheus-endpoint }}
 
     steps:
       - name: Checkout repo with trace

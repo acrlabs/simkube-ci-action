@@ -10,5 +10,5 @@ jobs:
       simulation-name: test-sim
       duration: 5m
       instance-type: c7a.xlarge
-      trace-file: ./cronjob.sktrace
+      trace-path: ./cronjob.sktrace
     secrets: inherit
