@@ -62,15 +62,15 @@ runs:
           exit 1
         fi
 
-        if [ -z "${{ inputs.github-pat }}" ]; then
-          echo "ERROR: github-pat is required"
+        if [ -z "${{ inputs.simkube-runner-pat }}" ]; then
+          echo "ERROR: simkube-runner-pat is required"
           echo "Create a GitHub PAT with 'repo' scope and add it as a secret"
           exit 1
         fi
 
-        if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+        if [ -z "$aws-access-key-id" ] || [ -z "$aws-secret-access-key" ]; then
           echo "ERROR: AWS credentials must be set as environment variables"
-          echo "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+          echo "Set aws-access-key-id and aws-secret-access-key"
           exit 1
         fi
 
@@ -81,7 +81,7 @@ runs:
         echo "Generating runner registration token..."
 
         TOKEN=$(curl -sS -X POST \
-          -H "Authorization: token ${{ inputs.github-pat }}" \
+          -H "Authorization: token ${{ inputs.simkube-runner-pat }}" \
           -H "Accept: application/vnd.github.v3+json" \
           "https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token" \
           | jq -r .token)
@@ -223,7 +223,7 @@ runs:
         while [ $ELAPSED -lt $MAX_WAIT ]; do
           # Check if runner is registered
           RUNNER_STATUS=$(curl -sS \
-            -H "Authorization: token ${{ inputs.github-pat }}" \
+            -H "Authorization: token ${{ inputs.simkube-runner-pat }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/runners" \
             | jq -r ".runners[] | select(.name == \"$RUNNER_NAME\") | .status")
