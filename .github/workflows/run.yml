@@ -135,4 +135,3 @@ jobs:
           name: ${{ inputs.simulation-name }}
           duration: ${{ inputs.duration }}
           speed: ${{ inputs.speed }}
-          repetitions: ${{ inputs.repetitions }}

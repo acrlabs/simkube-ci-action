@@ -31,8 +31,16 @@ inputs:
     required: false
     default: simkube,ephemeral,aws
 
-  github-pat:
+  simkube-runner-pat:
     description: GitHub Personal Access Token with repo scope
+    required: true
+
+  aws-access-key-id:
+    description: AWS access key ID
+    required: true
+
+  aws-secret-access-key:
+    description: AWS secret access key
     required: true
 
 outputs:
@@ -56,13 +64,13 @@ runs:
 
         if [ -z "${{ inputs.github-pat }}" ]; then
           echo "ERROR: github-pat is required"
-          echo "Please create a GitHub PAT with 'repo' scope and add it as a secret"
+          echo "Create a GitHub PAT with 'repo' scope and add it as a secret"
           exit 1
         fi
 
         if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
           echo "ERROR: AWS credentials must be set as environment variables"
-          echo "Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+          echo "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
           exit 1
         fi
 
@@ -80,7 +88,7 @@ runs:
 
         if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
           echo "ERROR: Failed to generate runner token"
-          echo "Please verify your GitHub PAT has 'repo' scope and hasn't expired"
+          echo "Verify your GitHub PAT has 'repo' scope and hasn't expired"
           exit 1
         fi
 
