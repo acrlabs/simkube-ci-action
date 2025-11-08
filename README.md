@@ -9,7 +9,7 @@ Automate Simkube simulations as part of your GitHub CI/CD
 ### Setup
 
 Add secrets to your GitHub repo:
-- `GITHUB_PAT` - personal access token with repo scope
+- `SIMKUBE_RUNNER_PAT` - personal access token with repo scope
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
 

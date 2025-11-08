@@ -1,5 +1,5 @@
 ---
-name: Test
+name: Test run simulation action
 
 on: [workflow_dispatch, pull_request]  # yamllint disable-line rule:truthy
 
@@ -11,4 +11,7 @@ jobs:
       duration: 5m
       instance-type: c7a.xlarge
       trace-path: ./cronjob.sktrace
-    secrets: inherit
+    secrets:
+      SIMKUBE_RUNNER_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -58,6 +58,14 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: string
 
+    secrets:
+      SIMKUBE_RUNNER_PAT:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
 jobs:
   launch-runner:
     name: Launch custom Simkube runner in AWS EC2
@@ -74,15 +82,15 @@ jobs:
           instance-type: ${{ inputs.instance-type }}
           aws-region: ${{ inputs.aws-region }}
           runner-labels: simkube,ephemeral
-          github-pat: ${{ secrets.GITHUB_PAT }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          simkube-runner-pat: ${{ secrets.SIMKUBE_RUNNER_PAT }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 
   simulate:
     name: Run Simkube Simulation
     needs: launch-runner
-    runs-on: [self-hosted, simkube]
+    runs-on: [self-hosted, simkube, ephemeral]
     outputs:
       simulation-id: ${{ steps.run.outputs.simulation-id }}
       prometheus-endpoint: ${{ steps.run.outputs.prometheus-endpoint }}
