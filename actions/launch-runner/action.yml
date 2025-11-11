@@ -157,6 +157,7 @@ runs:
       env:
         AWS_REGION: ${{ inputs.aws-region }}
       run: |
+        set -eo pipefail
         echo "Launching EC2 instance in $AWS_REGION..."
 
         # Build AWS CLI command
@@ -188,7 +189,8 @@ runs:
         echo "Executing: aws ec2 run-instances..."
         RESPONSE=$(eval $AWS_CMD 2>&1)
 
-        if [ $? -ne 0 ]; then
+
+        if ! RESPONSE=$(eval $AWS_CMD 2>&1); then
           echo "ERROR: Failed to launch instance"
           echo "$RESPONSE"
           exit 1
