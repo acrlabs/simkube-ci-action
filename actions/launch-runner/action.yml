@@ -160,35 +160,26 @@ runs:
         set -eo pipefail
         echo "Launching EC2 instance in $AWS_REGION..."
 
-        # Build AWS CLI command
-        AWS_CMD="aws ec2 run-instances \
-          --region $AWS_REGION \
-          --image-id ${{ inputs.ami-id }} \
-          --instance-type ${{ inputs.instance-type }} \
-          --instance-initiated-shutdown-behavior terminate \
-          --user-data file:///tmp/user-data.sh \
-          --tag-specifications 'ResourceType=instance,Tags=[
-            {Key=Name,Value=github-runner-${{ github.run_id }}},
-            {Key=GitHubRepository,Value=${{ github.repository }}},
-            {Key=GitHubRunId,Value=${{ github.run_id }}},
-            {Key=ManagedBy,Value=github-actions},
-            {Key=Ephemeral,Value=true}
-          ]'"
-
-        # Add optional parameters
-        if [ -n "${{ inputs.subnet-id }}" ]; then
-          AWS_CMD="$AWS_CMD --subnet-id ${{ inputs.subnet-id }}"
-        fi
-
-        if [ -n "${{ inputs.security-group-ids }}" ]; then
-          SG_IDS=$(echo "${{ inputs.security-group-ids }}" | tr ',' ' ')
-          AWS_CMD="$AWS_CMD --security-group-ids $SG_IDS"
-        fi
 
         # Launch instance
-        echo "Executing: aws ec2 run-instances..."
-        RESPONSE=$(eval $AWS_CMD 2>&1)
+        TAG_SPECS="ResourceType=instance,Tags=["
+        TAG_SPECS="${TAG_SPECS}{Key=Name,Value=github-runner-${{ github.run_id }}},"
+        TAG_SPECS="${TAG_SPECS}{Key=GitHubRepository,Value=${{ github.repository }}},"
+        TAG_SPECS="${TAG_SPECS}{Key=GitHubRunId,Value=${{ github.run_id }}},"
+        TAG_SPECS="${TAG_SPECS}{Key=ManagedBy,Value=github-actions},"
+        TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
+        echo "Executing: aws ec2 run-instances..."
+        RESPONSE=$(aws ec2 run-instances \
+          --region "$AWS_REGION" \
+          --image-id "${{ inputs.ami-id }}" \
+          --instance-type "${{ inputs.instance-type }}" \
+          --instance-initiated-shutdown-behavior terminate \
+          --user-data file:///tmp/user-data.sh \
+          --tag-specifications "$TAG_SPECS" \
+          ${SUBNET_ARG:+--subnet-id "${{ inputs.subnet-id }}"} \
+          ${SG_ARG:+--security-group-ids ${{ inputs.security-group-ids }}} \
+          2>&1)
 
         if ! RESPONSE=$(eval $AWS_CMD 2>&1); then
           echo "ERROR: Failed to launch instance"
