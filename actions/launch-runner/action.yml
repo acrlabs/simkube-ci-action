@@ -144,10 +144,10 @@ runs:
         USERDATA_EOF
 
         # Replace placeholders with actual runner name
-        sed -i "s/REPO_URL_PLACEHOLDER/$REPO_URL/" /tmp/user-data.sh
-        sed -i "s/RUNNER_LABELS_PLACEHOLDER/$RUNNER_LABELS/" /tmp/user-data.sh
-        sed -i "s/RUNNER_NAME_PLACEHOLDER/$RUNNER_NAME/" /tmp/user-data.sh
-        sed -i "s/RUNNER_TOKEN_PLACEHOLDER/$RUNNER_TOKEN/" /tmp/user-data.sh
+        sed -i "s|REPO_URL_PLACEHOLDER|$REPO_URL|" /tmp/user-data.sh
+        sed -i "s|RUNNER_LABELS_PLACEHOLDER|$RUNNER_LABELS|" /tmp/user-data.sh
+        sed -i "s|RUNNER_NAME_PLACEHOLDER|$RUNNER_NAME|" /tmp/user-data.sh
+        sed -i "s|RUNNER_TOKEN_PLACEHOLDER|$RUNNER_TOKEN|" /tmp/user-data.sh
 
         echo "✓ Created user data script for runner: $RUNNER_NAME"
 
