@@ -16,7 +16,7 @@ inputs:
   aws-region:
     description: AWS region to launch in
     required: false
-    default: us-east-1
+    default: us-west-2
 
   subnet-id:
     description: Subnet ID (optional)
