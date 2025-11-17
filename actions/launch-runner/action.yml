@@ -157,7 +157,7 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_DEFAULT_REGION: $AWS_REGION
+        AWS_REGION: ${{ inputs.aws-region }}
       run: |
         aws ec2 describe-images --image-ids "${{ inputs.ami-id }}"
 
