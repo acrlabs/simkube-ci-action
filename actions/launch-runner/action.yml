@@ -162,7 +162,6 @@ runs:
         set -eox pipefail
         echo "Launching EC2 instance in $AWS_REGION..."
 
-
         # Launch instance
         TAG_SPECS="ResourceType=instance,Tags=["
         TAG_SPECS="${TAG_SPECS}{Key=Name,Value=github-runner-${{ github.run_id }}},"
@@ -173,7 +172,7 @@ runs:
 
         echo "Executing: aws ec2 run-instances..."
         RESPONSE=$(aws ec2 run-instances \
-          --region "$AWS_REGION" \
+          --region "${{AWS_REGION}}" \
           --image-id "${{ inputs.ami-id }}" \
           --instance-type "${{ inputs.instance-type }}" \
           --instance-initiated-shutdown-behavior terminate \
