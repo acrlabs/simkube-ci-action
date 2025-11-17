@@ -151,6 +151,16 @@ runs:
 
         echo "✓ Created user data script for runner: $RUNNER_NAME"
 
+
+    - name: Test AMI Access
+      shell: bash
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_DEFAULT_REGION: $AWS_REGION
+      run: |
+        aws ec2 describe-images --image-ids ${{ inputs.ami-id }}"
+
     - name: Launch EC2 instance
       id: launch
       shell: bash
@@ -172,7 +182,7 @@ runs:
 
         echo "Executing: aws ec2 run-instances..."
         RESPONSE=$(aws ec2 run-instances \
-          --region "${{AWS_REGION}}" \
+          --region "$AWS_REGION" \
           --image-id "${{ inputs.ami-id }}" \
           --instance-type "${{ inputs.instance-type }}" \
           --instance-initiated-shutdown-behavior terminate \
