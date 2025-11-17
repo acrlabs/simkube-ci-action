@@ -159,7 +159,7 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_DEFAULT_REGION: $AWS_REGION
       run: |
-        aws ec2 describe-images --image-ids ${{ inputs.ami-id }}"
+        aws ec2 describe-images --image-ids "${{ inputs.ami-id }}"
 
     - name: Launch EC2 instance
       id: launch
