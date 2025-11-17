@@ -159,7 +159,7 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_REGION: ${{ inputs.aws-region }}
       run: |
-        set -eo pipefail
+        set -eox pipefail
         echo "Launching EC2 instance in $AWS_REGION..."
 
 
