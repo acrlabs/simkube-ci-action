@@ -167,7 +167,7 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_REGION: ${{ inputs.aws-region }}
+        AWS_DEFUALT_REGION: ${{ inputs.aws-region }}
       run: |
         set -eox pipefail
         echo "Launching EC2 instance in $AWS_REGION..."
@@ -212,7 +212,7 @@ runs:
     - name: Wait for instance to be running
       shell: bash
       env:
-        AWS_REGION: ${{ inputs.aws-region }}
+        AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
       run: |
         INSTANCE_ID="${{ steps.launch.outputs.instance-id }}"
         echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
