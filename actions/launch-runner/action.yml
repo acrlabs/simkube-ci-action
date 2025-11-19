@@ -157,9 +157,10 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_REGION_DEFAULT: ${{ inputs.aws-region }}
       run: |
-        aws ec2 describe-images --region "$AWS_DEFAULT_REGION" --image-ids "${{ inputs.ami-id }}"
+        aws ec2 describe-images \
+          --region "${{ inputs.aws-region }}" \
+          --image-ids "${{ inputs.ami-id }}"
 
     - name: Launch EC2 instance
       id: launch
@@ -167,7 +168,6 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_DEFUALT_REGION: ${{ inputs.aws-region }}
       run: |
         set -eox pipefail
         echo "Launching EC2 instance in $AWS_DEFAULT_REGION..."
@@ -182,7 +182,7 @@ runs:
 
         echo "Executing: aws ec2 run-instances..."
         RESPONSE=$(aws ec2 run-instances \
-          --region "$AWS_DEFAULT_REGION" \
+          --region "${{ inputs.aws-region }}" \
           --image-id "${{ inputs.ami-id }}" \
           --instance-type "${{ inputs.instance-type }}" \
           --instance-initiated-shutdown-behavior terminate \
@@ -218,7 +218,7 @@ runs:
         echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
 
         aws ec2 wait instance-running \
-          --region $AWS_DEFAULT_REGION \
+          --region "${{ inputs.aws-region }}" \
           --instance-ids $INSTANCE_ID
 
         echo "✓ Instance is running"
