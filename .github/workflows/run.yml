@@ -19,7 +19,7 @@ on:  # yamllint disable-line rule:truthy
       aws-region:
         description: AWS region to launch in
         required: false
-        default: us-east-1
+        default: us-west-2
         type: string
 
       subnet-id:
