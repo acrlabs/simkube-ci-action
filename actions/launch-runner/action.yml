@@ -106,52 +106,6 @@ runs:
         echo "token=$TOKEN" >> $GITHUB_OUTPUT
         echo "✓ Generated runner registration token"
 
-    - name: Create user data script
-      id: userdata
-      shell: bash
-      env:
-        REPO_URL: "https://github.com/${{ github.repository }}"
-        RUNNER_LABELS: "${{ inputs.runner-labels }}"
-        RUNNER_NAME: "runner-${{ github.run_id }}-$(date +%s)"
-        RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
-      run: |
-        RUNNER_NAME="runner-${{ github.run_id }}-$(date +%s)"
-        echo "runner-name=$RUNNER_NAME" >> $GITHUB_OUTPUT
-
-        # Create user data script
-        cat > /tmp/user-data.sh << 'USERDATA_EOF'
-        #!/bin/bash
-        set -e
-
-        echo "Setting up GitHub Runner..."
-
-        # Create environment file for systemd service
-        cat > /etc/github-runner.env << 'ENVFILE'
-        GITHUB_REPOSITORY_URL=REPO_URL_PLACEHOLDER
-        GITHUB_RUNNER_LABELS=RUNNER_LABELS_PLACEHOLDER
-        GITHUB_RUNNER_NAME=RUNNER_NAME_PLACEHOLDER
-        GITHUB_RUNNER_TOKEN=RUNNER_TOKEN_PLACEHOLDER
-        ENVFILE
-
-        echo "✓ Created runner configuration"
-
-        # Start the runner service
-        echo "Starting GitHub Actions runner service..."
-        systemctl start github-runner
-
-        echo "✓ Runner service started"
-        echo "Setup complete at: $(date)"
-        USERDATA_EOF
-
-        # Replace placeholders with actual runner name
-        sed -i "s|REPO_URL_PLACEHOLDER|$REPO_URL|" /tmp/user-data.sh
-        sed -i "s|RUNNER_LABELS_PLACEHOLDER|$RUNNER_LABELS|" /tmp/user-data.sh
-        sed -i "s|RUNNER_NAME_PLACEHOLDER|$RUNNER_NAME|" /tmp/user-data.sh
-        sed -i "s|RUNNER_TOKEN_PLACEHOLDER|$RUNNER_TOKEN|" /tmp/user-data.sh
-
-        echo "✓ Created user data script for runner: $RUNNER_NAME"
-
-
     - name: Test AMI Access
       shell: bash
       env:
@@ -168,8 +122,37 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        REPO_URL: "https://github.com/${{ github.repository }}"
+        RUNNER_LABELS: "${{ inputs.runner-labels }}"
+        RUNNER_NAME: "runner-${{ github.run_id }}-$(date +%s)"
+        RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
       run: |
         set -eox pipefail
+
+        # Create user data script
+        USER_DATA=$(cat << USERDATA_EOF | base64 -w 0
+        #!/bin/bash
+        set -e
+
+        echo "Setting up GitHub Runner..."
+
+        cat > /etc/github-runner.env << 'ENVFILE'
+        GITHUB_REPOSITORY_URL=${REPO_URL}
+        GITHUB_RUNNER_LABELS=${RUNNER_LABELS}
+        GITHUB_RUNNER_NAME=${RUNNER_NAME}
+        GITHUB_RUNNER_TOKEN=${RUNNER_TOKEN}
+        ENVFILE
+
+        echo "✓ Created runner configuration"
+
+        echo "Starting GitHub Actions runner service..."
+        systemctl start github-runner
+
+        echo "✓ Runner service started"
+        echo "Setup complete at: $(date)"
+        USERDATA_EOF
+        )
+
         echo "Launching EC2 instance in $AWS_DEFAULT_REGION..."
 
         TAG_SPECS="ResourceType=instance,Tags=["
@@ -185,7 +168,7 @@ runs:
           --image-id "${{ inputs.ami-id }}" \
           --instance-type "${{ inputs.instance-type }}" \
           --instance-initiated-shutdown-behavior terminate \
-          --user-data file:///tmp/user-data.sh \
+          --user-data "$USER_DATA" \
           --tag-specifications "$TAG_SPECS" \
           --subnet-id "${{ inputs.subnet-id }}" \
           --security-group-ids "${{ inputs.security-group-ids }}" \
