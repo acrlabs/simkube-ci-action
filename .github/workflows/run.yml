@@ -23,13 +23,13 @@ on:  # yamllint disable-line rule:truthy
         type: string
 
       subnet-id:
-        description: Subnet ID (optional)
-        required: false
+        description: Subnet ID
+        required: true
         type: string
 
       security-group-ids:
-        description: Comma-separated security group IDs (optional)
-        required: false
+        description: Space-separated security group IDs
+        required: true
         type: string
 
       runner-labels:
@@ -85,6 +85,8 @@ jobs:
           simkube-runner-pat: ${{ secrets.SIMKUBE_RUNNER_PAT }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          subnet-id: ${{ inputs.subnet-id }}
+          security-group-ids: ${{ inputs.security-group-ids }}
 
 
   simulate:

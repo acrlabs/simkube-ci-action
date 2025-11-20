@@ -187,8 +187,8 @@ runs:
           --instance-initiated-shutdown-behavior terminate \
           --user-data file:///tmp/user-data.sh \
           --tag-specifications "$TAG_SPECS" \
-          --subnet-id "${{ inputs.subnet-id }}"} \
-          --security-group-ids "${{ inputs.security-group-ids }}"} \
+          --subnet-id "${{ inputs.subnet-id }}" \
+          --security-group-ids "${{ inputs.security-group-ids }}" \
           2>&1); then
           echo "ERROR: Failed to launch instance"
           echo "$RESPONSE"
