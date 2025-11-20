@@ -19,12 +19,12 @@ inputs:
     default: us-west-2
 
   subnet-id:
-    description: Subnet ID (optional)
-    required: false
+    description: Subnet ID
+    required: true
 
   security-group-ids:
-    description: Comma-separated security group IDs (optional)
-    required: false
+    description: Space-separated security group IDs
+    required: true
 
   runner-labels:
     description: Additional labels for the runner (comma-separated)
@@ -172,7 +172,6 @@ runs:
         set -eox pipefail
         echo "Launching EC2 instance in $AWS_DEFAULT_REGION..."
 
-        # Launch instance
         TAG_SPECS="ResourceType=instance,Tags=["
         TAG_SPECS="${TAG_SPECS}{Key=Name,Value=github-runner-${{ github.run_id }}},"
         TAG_SPECS="${TAG_SPECS}{Key=GitHubRepository,Value=${{ github.repository }}},"
@@ -181,18 +180,16 @@ runs:
         TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
         echo "Executing: aws ec2 run-instances..."
-        RESPONSE=$(aws ec2 run-instances \
+        if ! RESPONSE=$(aws ec2 run-instances \
           --region "${{ inputs.aws-region }}" \
           --image-id "${{ inputs.ami-id }}" \
           --instance-type "${{ inputs.instance-type }}" \
           --instance-initiated-shutdown-behavior terminate \
           --user-data file:///tmp/user-data.sh \
           --tag-specifications "$TAG_SPECS" \
-          ${SUBNET_ARG:+--subnet-id "${{ inputs.subnet-id }}"} \
-          ${SG_ARG:+--security-group-ids ${{ inputs.security-group-ids }}} \
-          2>&1)
-
-        if ! RESPONSE=$(eval $AWS_CMD 2>&1); then
+          --subnet-id "${{ inputs.subnet-id }}"} \
+          --security-group-ids "${{ inputs.security-group-ids }}"} \
+          2>&1); then
           echo "ERROR: Failed to launch instance"
           echo "$RESPONSE"
           exit 1

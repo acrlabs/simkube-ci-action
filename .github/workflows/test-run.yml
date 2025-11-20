@@ -7,9 +7,11 @@ jobs:
   test-run:
     uses: ./.github/workflows/run.yml
     with:
-      simulation-name: test-sim
       duration: 5m
       instance-type: c7a.xlarge
+      security-group-ids: sg-0fd593b495c5e0ffd
+      simulation-name: test-sim
+      subnet-id: subnet-055f0876bddd75097
       trace-path: ./cronjob.sktrace
     secrets:
       SIMKUBE_RUNNER_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
