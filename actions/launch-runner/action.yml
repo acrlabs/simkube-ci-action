@@ -6,7 +6,7 @@ inputs:
   ami-id:
     description: AMI ID for SimKube Runner AMI
     required: false
-    default: ami-00f46cfa46d5aae3b
+    default: ami-05405c8e900ec7da7
 
   instance-type:
     description: EC2 instance type
