@@ -209,7 +209,8 @@ runs:
     - name: Wait for instance to be running
       shell: bash
       env:
-        AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
       run: |
         INSTANCE_ID="${{ steps.launch.outputs.instance-id }}"
         echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
