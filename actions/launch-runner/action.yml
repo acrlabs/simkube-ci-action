@@ -6,7 +6,7 @@ inputs:
   ami-id:
     description: AMI ID for SimKube Runner AMI
     required: false
-    default: ami-05405c8e900ec7da7
+    default: ami-05291b1e4c46b4488
 
   instance-type:
     description: EC2 instance type
@@ -130,9 +130,9 @@ runs:
         set -eox pipefail
 
         # Create user data script
-        USER_DATA=$(cat << USERDATA_EOF | base64 -w 0
+        USER_DATA=$(cat << USERDATA_EOF
         #!/bin/bash
-        set -e
+        set -ex
 
         echo "Setting up GitHub Runner..."
 
