@@ -7,7 +7,7 @@ on:  # yamllint disable-line rule:truthy
       ami-id:
         description: AMI ID for SimKube Runner AMI
         required: false
-        default: ami-04648e5c6065f7755  # TODO: this reference is for testing only
+        default: ami-0f1a336a6d01d63f3  # TODO: this reference is for testing only
         type: string
 
       instance-type:
