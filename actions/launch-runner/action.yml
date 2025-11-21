@@ -124,7 +124,7 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         REPO_URL: "https://github.com/${{ github.repository }}"
         RUNNER_LABELS: "${{ inputs.runner-labels }}"
-        RUNNER_NAME: "runner-${{ github.run_id }}-$(date +%s)"
+        EPHEMERAL_RUNNER_NAME: "runner-${{ github.run_id }}"
         RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
       run: |
         set -eox pipefail
@@ -139,7 +139,7 @@ runs:
         cat > /etc/github-runner.env << 'ENVFILE'
         GITHUB_REPOSITORY_URL=${REPO_URL}
         GITHUB_RUNNER_LABELS=${RUNNER_LABELS}
-        GITHUB_RUNNER_NAME=${RUNNER_NAME}
+        GITHUB_RUNNER_NAME=${EPHEMERAL_RUNNER_NAME}
         GITHUB_RUNNER_TOKEN=${RUNNER_TOKEN}
         ENVFILE
 
@@ -194,6 +194,7 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        EPHEMERAL_RUNNER_NAME: "runner-${{ github.run_id }}"
       run: |
         INSTANCE_ID="${{ steps.launch.outputs.instance-id }}"
         echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
@@ -207,9 +208,9 @@ runs:
     - name: Wait for runner to register
       shell: bash
       run: |
-        RUNNER_NAME="${{ steps.userdata.outputs.runner-name }}"
+        EPHEMERAL_RUNNER_NAME="${{ steps.userdata.outputs.runner-name }}"
 
-        echo "Waiting for runner '$RUNNER_NAME' to register with GitHub..."
+        echo "Waiting for runner '$EPHEMERAL_RUNNER_NAME' to register with GitHub..."
         echo "This may take 1-3 minutes while the instance boots and starts the runner service."
 
         MAX_WAIT=300  # 5 minutes
@@ -222,10 +223,10 @@ runs:
             -H "Authorization: token ${{ inputs.simkube-runner-pat }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/runners" \
-            | jq -r ".runners[] | select(.name == \"$RUNNER_NAME\") | .status")
+            | jq -r ".runners[] | select(.name == \"$EPHEMERAL_RUNNER_NAME\") | .status")
 
           if [ "$RUNNER_STATUS" == "online" ]; then
-            echo "✓ Runner '$RUNNER_NAME' is online and ready!"
+            echo "✓ Runner '$EPHEMERAL_RUNNER_NAME' is online and ready!"
             exit 0
           elif [ -n "$RUNNER_STATUS" ]; then
             echo "Runner found but status is: $RUNNER_STATUS (waiting for 'online'...)"
