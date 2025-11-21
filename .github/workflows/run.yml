@@ -125,6 +125,7 @@ jobs:
         id: run
         uses: ./actions/run-simulation
         with:
-          name: ${{ inputs.simulation-name }}
+          simulation-name: ${{ inputs.simulation-name }}
           duration: ${{ inputs.duration }}
           speed: ${{ inputs.speed }}
+          trace-path: ${{ inputs.trace-path}}
