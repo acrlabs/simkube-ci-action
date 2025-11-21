@@ -40,7 +40,7 @@ runs:
 
         # Required
         CMD="$CMD --trace-path '${{ inputs.trace-path }}'"
-        CMD="$CMD --duration '${{ inputs.duration }}'"
+        CMD="$CMD --simulation-duration '${{ inputs.duration }}'"
 
         # Add speed if provided
         if [ -n "${{ inputs.speed }}" ]; then
