@@ -98,16 +98,8 @@ jobs:
       prometheus-endpoint: ${{ steps.run.outputs.prometheus-endpoint }}
 
     steps:
-      - name: Checkout repo with trace
-        uses: actions/checkout@v5
-        with:
-          path: trace-repo
-
       - name: Checkout
         uses: actions/checkout@v5
-        # TODO: add versioning logic when stable
-        with:
-          path: simkube-ci
 
       - name: Copy trace file to expected location
         shell: bash
@@ -131,7 +123,7 @@ jobs:
 
       - name: Run simulation
         id: run
-        uses: ./simkube-ci/run-simulation
+        uses: ./actions/run-simulation
         with:
           name: ${{ inputs.simulation-name }}
           duration: ${{ inputs.duration }}
