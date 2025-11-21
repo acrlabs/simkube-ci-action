@@ -116,7 +116,6 @@ jobs:
           sudo chown ubuntu:ubuntu /data
 
           TRACE_FILE="${{ inputs.trace-path }}"
-          TRACE_FILE="${TRACE_FILE#./}"
 
           if [ ! -f "$TRACE_FILE" ]; then
             echo "ERROR: Trace file not found at $TRACE_FILE"
