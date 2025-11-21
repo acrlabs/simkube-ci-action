@@ -205,43 +205,8 @@ runs:
 
         echo "✓ Instance is running"
 
-    - name: Wait for runner to register
-      shell: bash
-      run: |
-        EPHEMERAL_RUNNER_NAME="${{ steps.userdata.outputs.runner-name }}"
-
-        echo "Waiting for runner '$EPHEMERAL_RUNNER_NAME' to register with GitHub..."
-        echo "This may take 1-3 minutes while the instance boots and starts the runner service."
-
-        MAX_WAIT=300  # 5 minutes
-        ELAPSED=0
-        SLEEP_INTERVAL=10
-
-        while [ $ELAPSED -lt $MAX_WAIT ]; do
-          # Check if runner is registered
-          RUNNER_STATUS=$(curl -sS \
-            -H "Authorization: token ${{ inputs.simkube-runner-pat }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runners" \
-            | jq -r ".runners[] | select(.name == \"$EPHEMERAL_RUNNER_NAME\") | .status")
-
-          if [ "$RUNNER_STATUS" == "online" ]; then
-            echo "✓ Runner '$EPHEMERAL_RUNNER_NAME' is online and ready!"
-            exit 0
-          elif [ -n "$RUNNER_STATUS" ]; then
-            echo "Runner found but status is: $RUNNER_STATUS (waiting for 'online'...)"
-          else
-            echo "Waiting for runner to register... (${ELAPSED}s / ${MAX_WAIT}s)"
-          fi
-
-          sleep $SLEEP_INTERVAL
-          ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
-        done
-
-        echo "ERROR: Runner failed to register within ${MAX_WAIT} seconds"
-        echo "Instance ID: ${{ steps.launch.outputs.instance-id }}"
-        echo "Check EC2 console and instance logs for details"
-        exit 1
+        echo "waiting 30 seconds for startup scripts..."
+        sleep 30
 
     - name: Summary
       shell: bash
