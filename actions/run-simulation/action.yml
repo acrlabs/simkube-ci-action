@@ -26,6 +26,7 @@ runs:
       id: build-cmd
       shell: bash
       env:
+        PATH: "/home/ubuntu/.cargo/bin:$PATH"  # we should add cargo/bin to PATH in the AMI
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
         DURATION: ${{ inputs.duration }}
