@@ -5,8 +5,7 @@ description: Launches a pre-configured GitHub Actions runnner in EC2
 inputs:
   ami-id:
     description: AMI ID for SimKube Runner AMI
-    required: false
-    default: ami-0f1a336a6d01d63f3
+    required: true
 
   instance-type:
     description: EC2 instance type
@@ -15,8 +14,7 @@ inputs:
 
   aws-region:
     description: AWS region to launch in
-    required: false
-    default: us-west-2
+    required: true
 
   subnet-id:
     description: Subnet ID
@@ -29,7 +27,7 @@ inputs:
   runner-labels:
     description: Additional labels for the runner (comma-separated)
     required: false
-    default: simkube,ephemeral,aws
+    default: simkube,ephemeral
 
   simkube-runner-pat:
     description: GitHub Personal Access Token with repo scope
@@ -47,9 +45,6 @@ outputs:
   instance-id:
     description: EC2 instance ID for runner that was launched
     value: ${{ steps.launch.outputs.instance-id }}
-  runner-name:
-    description: 'Name of the registered runner'
-    value: ${{ steps.userdata.outputs.runner-name }}
 
 runs:
   using: composite

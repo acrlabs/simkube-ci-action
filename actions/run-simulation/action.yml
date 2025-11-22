@@ -11,9 +11,9 @@ inputs:
     description: Path to the trace file
     required: true
 
-  simulation-duration:
+  duration:
     description: Simulation duration
-    required: true
+    required: false
 
   speed:
     description: Simulation speed
@@ -28,20 +28,25 @@ runs:
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
-        DURATION: ${{ inputs.simulation-duration }}
+        DURATION: ${{ inputs.duration }}
         SPEED: ${{ inputs.speed }}
       run: |
+        # Function to add optional flags
+        add_flag() {
+          if [ -n "$2" ]; then
+            CMD="$CMD --$1 '$2'"
+          fi
+        }
+
         # Base command
         CMD="skctl run '$SIMULATION_NAME'"
 
         # Required
         CMD="$CMD --trace-path '$TRACE_PATH'"
-        CMD="$CMD --duration '$DURATION'"
 
-        # Add speed if provided
-        if [ -n "$SPEED" ]; then
-          CMD="$CMD --speed '$SPEED'"
-        fi
+        # Add optional flags
+        add_flag "speed" "$SPEED"
+        add_flag "duration" "$DURATION"
 
         echo ""
         echo "Command to execute:"
@@ -53,7 +58,7 @@ runs:
     - name: Wait for simulation to start
       shell: bash
       env:
-        SIMULATION_NAME: ${{ input.simulation-name }}
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
       run: |
         echo "Waiting for simulation to reach Running state..."
         kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME"

@@ -6,20 +6,17 @@ on:  # yamllint disable-line rule:truthy
     inputs:
       ami-id:
         description: AMI ID for SimKube Runner AMI
-        required: false
-        default: ami-0f1a336a6d01d63f3  # TODO: this reference is for testing only
+        required: true
         type: string
 
       instance-type:
         description: EC2 instance type
         required: false
-        default: c7a.2xlarge
         type: string
 
       aws-region:
         description: AWS region to launch in
-        required: false
-        default: us-west-2
+        required: true
         type: string
 
       subnet-id:
@@ -35,7 +32,6 @@ on:  # yamllint disable-line rule:truthy
       runner-labels:
         description: Additional labels for the runner (comma-separated)
         required: false
-        default: simkube,ephemeral,aws
         type: string
 
       simulation-name:
@@ -81,7 +77,6 @@ jobs:
           ami-id: ${{ inputs.ami-id }}
           instance-type: ${{ inputs.instance-type }}
           aws-region: ${{ inputs.aws-region }}
-          runner-labels: simkube,ephemeral
           simkube-runner-pat: ${{ secrets.SIMKUBE_RUNNER_PAT }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -93,10 +88,6 @@ jobs:
     name: Run Simkube Simulation
     needs: launch-runner
     runs-on: [self-hosted, simkube, ephemeral]
-    outputs:
-      simulation-id: ${{ steps.run.outputs.simulation-id }}
-      prometheus-endpoint: ${{ steps.run.outputs.prometheus-endpoint }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
