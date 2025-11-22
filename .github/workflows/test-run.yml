@@ -7,7 +7,7 @@ jobs:
   test-run:
     uses: ./.github/workflows/run.yml
     with:
-      ami-id: ami-02c1f6fd0b56a1017
+      ami-id: ami-0ac57be3bde538a47
       duration: +5m
       instance-type: c7a.xlarge
       security-group-ids: sg-0fd593b495c5e0ffd
