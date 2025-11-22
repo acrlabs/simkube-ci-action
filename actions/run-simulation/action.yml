@@ -19,71 +19,64 @@ inputs:
     description: Simulation speed
     required: false
 
-outputs:
-  simulation-id:
-    description: Unique simulation ID
-    value: ${{ steps.setup.outputs.simulation-id }}
-
-  prometheus-endpoint:
-    description: Prometheus endpoint where metrics were sent
-    value: ${{ steps.run.outputs.prometheus-endpoint }}
-
 runs:
   using: composite
   steps:
-    - name: Build skctl command
+    - name: Run simulation
       id: build-cmd
       shell: bash
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+        TRACE_PATH: ${{ inputs.trace-path }}
+        DURATION: ${{ inputs.simulation-duration }}
+        SPEED: ${{ inputs.speed }}
       run: |
         # Base command
-        CMD="skctl run '${{ inputs.simulation-name }}'"
+        CMD="skctl run '$SIMULATION_NAME'"
 
         # Required
-        CMD="$CMD --trace-path '${{ inputs.trace-path }}'"
-        CMD="$CMD --simulation-duration '${{ inputs.duration }}'"
+        CMD="$CMD --trace-path '$TRACE_PATH'"
+        CMD="$CMD --duration '$DURATION'"
 
         # Add speed if provided
-        if [ -n "${{ inputs.speed }}" ]; then
-          CMD="$CMD --speed ${{ inputs.speed }}"
+        if [ -n "$SPEED" ]; then
+          CMD="$CMD --speed '$SPEED'"
         fi
-
-        echo "command=$CMD" >> $GITHUB_OUTPUT
 
         echo ""
         echo "Command to execute:"
         echo "$CMD"
         echo ""
+        echo "Starting simulation..."
+        eval $CMD
 
-    - name: Run Simkube simulation
+    - name: Wait for simulation to start
       shell: bash
       env:
-        SIMULATION_ID: ${{ steps.setup.outputs.simulation-id }}
+        SIMULATION_NAME: ${{ input.simulation-name }}
       run: |
-        echo "Running simulation..."
-        echo ""
+        echo "Waiting for simulation to reach Running state..."
+        kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME"
+        echo "✓ Simulation is running!"
 
-        # Execute the command
-        eval ${{ steps.build-cmd.outputs.command }}
-
-        EXIT_CODE=$?
-
-        if [ $EXIT_CODE -eq 0 ]; then
-          echo ""
-          echo "Simulation completed successfully!"
-        else
-          echo ""
-          echo "Simulation failed with exit code: $EXIT_CODE"
-          exit $EXIT_CODE
-        fi
+    - name: Wait for simulation to complete
+      shell: bash
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+      run: |
+        echo "Waiting for simulation to complete..."
+        kubectl wait --for=condition=Finished simulation/"$SIMULATION_NAME"
+        echo "✓ Simulation completed successfully!"
 
     - name: Display summary
       shell: bash
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
       if: success()
       run: |
         echo ""
         echo "Simulation Completed!"
         echo ""
-        echo "Simulation ID: ${{ steps.setup.outputs.simulation-id }}"
-        echo "Name:          ${{ inputs.simulation-name }}"
+        echo "Name:          '$SIMULATION_NAME'"
         echo "Completed at:  $(date)"
         echo ""
