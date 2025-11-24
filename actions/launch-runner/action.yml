@@ -55,8 +55,8 @@ runs:
       env:
         AMI_ID: ${{ inputs.ami-id }}
         SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
 
     - name: Generate runner registration token
       id: token
@@ -95,7 +95,7 @@ runs:
         AWS_REGION: ${{ inputs.aws-region }}
         REPO: ${{ github.repository }}
         RUNNER_NAME: github-runner-${{ github.run_id }}
-        GITHUB_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
+        GITHUB_PAT: ${{ inputs.SIMKUBE_RUNNER_PAT }}
 
     - name: Summary
       shell: bash
