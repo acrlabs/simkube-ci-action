@@ -40,7 +40,7 @@ runs:
         }
 
         # Base command
-        CMD="skctl run '$SIMULATION_NAME'"
+        CMD="skctl run --disable-metrics '$SIMULATION_NAME'"
 
         # Required
         CMD="$CMD --trace-path '$TRACE_PATH'"
