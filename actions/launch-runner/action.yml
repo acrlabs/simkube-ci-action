@@ -94,7 +94,7 @@ runs:
         INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
         AWS_REGION: ${{ inputs.aws-region }}
         REPO: ${{ github.repository }}
-        RUNNER_NAME: github-runner-${{ github.run_id }}
+        SIMKUBE_RUNNER_NAME: github-runner-${{ github.run_id }}
         GITHUB_PAT: ${{ inputs.simkube-runner-pat }}
 
     - name: Summary
@@ -103,7 +103,7 @@ runs:
       run: "$GITHUB_ACTION_PATH/scripts/runner-summary.sh"
       env:
         INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
-        RUNNER_NAME: github-runner-${{ github.run_id }}
+        SIMKUBE_RUNNER_NAME: github-runner-${{ github.run_id }}
         AWS_REGION: ${{ inputs.aws-region }}
         INSTANCE_TYPE: ${{ inputs.instance-type }}
         RUNNER_LABELS: "${{ inputs.runner-labels }}"
