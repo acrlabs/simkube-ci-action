@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Validate required inputs
-: "${GITHUB_REPO:?ERROR: GITHUB_REPO is required}"
+: "${GITHUB_REPOSITORY:?ERROR: GITHUB_REPOSITORY is required}"
 : "${SIMKUBE_RUNNER_PAT:?ERROR: SIMKUBE_RUNNER_PAT is required}"
 
 echo "Generating runner registration token..."
