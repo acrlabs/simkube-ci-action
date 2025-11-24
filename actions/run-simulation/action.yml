@@ -38,19 +38,19 @@ runs:
 
     - name: Wait for simulation to start
       shell: bash
-      run: ./scripts/wait-for-simulation-start.sh
+      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-start.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
 
     - name: Wait for simulation to complete
       shell: bash
-      run: ./scripts/wait-for-simulation-complete.sh
+      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-complete.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
 
     - name: Display summary
       shell: bash
-      run: ./scripts/display-summary.sh
+      run: "$GITHUB_ACTION_PATH/scripts/display-summary.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       if: success()

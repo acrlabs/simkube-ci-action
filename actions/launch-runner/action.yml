@@ -51,7 +51,7 @@ runs:
   steps:
     - name: Validate inputs
       shell: bash
-      run: ./scripts/validate-inputs.sh
+      run: "$GITHUB_ACTION_PATH/scripts/validate-inputs.sh"
       env:
         AMI_ID: ${{ inputs.ami-id }}
         SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
@@ -61,7 +61,7 @@ runs:
     - name: Generate runner registration token
       id: token
       shell: bash
-      run: ./scripts/generate-token.sh
+      run: "$GITHUB_ACTION_PATH/scripts/generate-token.sh"
       env:
         SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
         GITHUB_REPOSITORY: ${{ github.repository }}
@@ -69,7 +69,7 @@ runs:
     - name: Launch EC2 instance
       id: launch
       shell: bash
-      run: ./scripts/launch-ephemeral-runner.sh
+      run: "$GITHUB_ACTION_PATH/scripts/launch-ephemeral-runner.sh"
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
@@ -87,7 +87,7 @@ runs:
 
     - name: Wait for instance to be running and runner to register
       shell: bash
-      run: ./scripts/.sh
+      run: "$GITHUB_ACTION_PATH/scripts/wait-for-runner.sh"
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
@@ -100,12 +100,10 @@ runs:
     - name: Summary
       shell: bash
       if: success()
-      run: |
-        echo "Runner Launch Successful"
-        echo "Instance ID: ${{ steps.launch.outputs.instance-id }}"
-        echo "Runner Name: ${{ steps.userdata.outputs.runner-name }}"
-        echo "Region: ${{ inputs.aws-region }}"
-        echo "Instance Type: ${{ inputs.instance-type }}"
-        echo ""
-        echo "The runner is now available for jobs with labels: ${{ inputs.runner-labels }}"
-        echo "The runner will automatically terminate after completing one job (ephemeral mode)."
+      run: "$GITHUB_ACTION_PATH/scripts/runner-summary.sh"
+      env:
+        INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
+        RUNNER_NAME: github-runner-${{ github.run_id }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        INSTANCE_TYPE: ${{ inputs.instance-type }}
+        RUNNER_LABELS: "${{ inputs.runner-labels }}"
