@@ -25,67 +25,32 @@ runs:
     - name: Update path
       shell: bash
       run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
+
     - name: Run simulation
       id: build-cmd
       shell: bash
+      run: ./scripts/run-simulation.sh
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
         DURATION: ${{ inputs.duration }}
         SPEED: ${{ inputs.speed }}
-      run: |
-        echo $PATH
-        # copy trace file to data
-        cp "$TRACE_PATH" /var/kind/cluster/trace
-
-        # Function to add optional flags
-        add_flag() {
-          if [ -n "$2" ]; then
-            CMD="$CMD --$1 \"$2\""
-          fi
-        }
-
-        # Base command
-        CMD="skctl run --disable-metrics \"$SIMULATION_NAME\" --hooks config/hooks/default.yml"
-
-        # Add optional flags
-        add_flag "speed" "$SPEED"
-        add_flag "duration" "$DURATION"
-
-        echo ""
-        echo "Command to execute:"
-        echo "$CMD"
-        echo ""
-        echo "Starting simulation..."
-        eval $CMD
 
     - name: Wait for simulation to start
       shell: bash
+      run: ./scripts/wait-for-simulation-start.sh
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
-      run: |
-        echo "Waiting for simulation to reach Running state..."
-        kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME" --timeout 2m
-        echo "✓ Simulation is running!"
 
     - name: Wait for simulation to complete
       shell: bash
+      run: ./scripts/wait-for-simulation-complete.sh
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
-      run: |
-        echo "Waiting for simulation to complete..."
-        kubectl wait --for=condition=Finished simulation/"$SIMULATION_NAME" --timeout 2h
-        echo "✓ Simulation completed successfully!"
 
     - name: Display summary
       shell: bash
+      run: ./scripts/display-summary.sh
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       if: success()
-      run: |
-        echo ""
-        echo "Simulation Completed!"
-        echo ""
-        echo "Name:          \"$SIMULATION_NAME\""
-        echo "Completed at:  $(date)"
-        echo ""

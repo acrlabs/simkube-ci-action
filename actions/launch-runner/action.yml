@@ -51,69 +51,25 @@ runs:
   steps:
     - name: Validate inputs
       shell: bash
-      run: |
-        if [ -z "${{ inputs.ami-id }}" ]; then
-          echo "ERROR: ami-id is required"
-          exit 1
-        fi
-
-        if [ -z "${{ inputs.simkube-runner-pat }}" ]; then
-          echo "ERROR: simkube-runner-pat is required"
-          echo "Create a GitHub PAT with 'repo' scope and add it as a secret"
-          exit 1
-        fi
-
-        if [ -z "$aws-access-key-id" ] || [ -z "$aws-secret-access-key" ]; then
-          echo "ERROR: AWS credentials must be set as environment variables"
-          echo "Set aws-access-key-id and aws-secret-access-key"
-          exit 1
-        fi
+      run: ./scripts/validate-inputs.sh
+      env:
+        AMI_ID: ${{ inputs.ami-id }}
+        SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
     - name: Generate runner registration token
       id: token
       shell: bash
-      run: |
-        echo "Generating runner registration token..."
-
-        RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST \
-        -H "Authorization: token ${{ inputs.simkube-runner-pat }}" \
-        -H "Accept: application/vnd.github.v3+json" \
-        "https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token")
-
-        HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-        BODY=$(echo "$RESPONSE" | head -n-1)
-
-        echo "HTTP Status: $HTTP_CODE"
-
-        if [ "$HTTP_CODE" != "201" ]; then
-          echo "ERROR: API request failed"
-          echo "Response body: $BODY"
-        fi
-
-        TOKEN=$(echo "$BODY" | jq -r .token)
-
-        if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
-          echo "ERROR: Failed to generate runner token"
-          echo "Verify your GitHub PAT has 'repo' scope and hasn't expired"
-          exit 1
-        fi
-
-        echo "token=$TOKEN" >> $GITHUB_OUTPUT
-        echo "✓ Generated runner registration token"
-
-    - name: Test AMI Access
-      shell: bash
+      run: ./scripts/generate-token.sh
       env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-      run: |
-        aws ec2 describe-images \
-          --region "${{ inputs.aws-region }}" \
-          --image-ids "${{ inputs.ami-id }}"
+        SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
 
     - name: Launch EC2 instance
       id: launch
       shell: bash
+      run: ./scripts/launch-ephemeral-runner.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
@@ -121,87 +77,25 @@ runs:
         RUNNER_LABELS: "${{ inputs.runner-labels }}"
         EPHEMERAL_RUNNER_NAME: "runner-${{ github.run_id }}"
         RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
-      run: |
-        set -eox pipefail
+        AWS_REGION: ${{ inputs.aws-region }}
+        AMI_ID: ${{ inputs.ami-id }}
+        INSTANCE_TYPE: ${{ inputs.instance-type }}
+        SUBNET_ID: ${{ inputs.subnet-id }}
+        SECURITY_GROUP_IDS: ${{ inputs.security-group-ids }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
 
-        # Create user data script
-        USER_DATA=$(cat << USERDATA_EOF
-        #!/bin/bash
-        set -ex
-
-        echo "Setting up GitHub Runner..."
-
-        cat > /etc/github-runner.env << 'ENVFILE'
-        GITHUB_REPOSITORY_URL=${REPO_URL}
-        GITHUB_RUNNER_LABELS=${RUNNER_LABELS}
-        GITHUB_RUNNER_NAME=${EPHEMERAL_RUNNER_NAME}
-        GITHUB_RUNNER_TOKEN=${RUNNER_TOKEN}
-        ENVFILE
-
-        echo "✓ Created runner configuration"
-
-        echo "Starting GitHub Actions runner service..."
-        systemctl start github-runner
-
-        echo "✓ Runner service started"
-        echo "Setup complete at: $(date)"
-        USERDATA_EOF
-        )
-
-        echo "Launching EC2 instance in $AWS_DEFAULT_REGION..."
-
-        TAG_SPECS="ResourceType=instance,Tags=["
-        TAG_SPECS="${TAG_SPECS}{Key=Name,Value=github-runner-${{ github.run_id }}},"
-        TAG_SPECS="${TAG_SPECS}{Key=GitHubRepository,Value=${{ github.repository }}},"
-        TAG_SPECS="${TAG_SPECS}{Key=GitHubRunId,Value=${{ github.run_id }}},"
-        TAG_SPECS="${TAG_SPECS}{Key=ManagedBy,Value=github-actions},"
-        TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
-
-        echo "Executing: aws ec2 run-instances..."
-        if ! RESPONSE=$(aws ec2 run-instances \
-          --region "${{ inputs.aws-region }}" \
-          --image-id "${{ inputs.ami-id }}" \
-          --instance-type "${{ inputs.instance-type }}" \
-          --instance-initiated-shutdown-behavior terminate \
-          --user-data "$USER_DATA" \
-          --tag-specifications "$TAG_SPECS" \
-          --subnet-id "${{ inputs.subnet-id }}" \
-          --security-group-ids "${{ inputs.security-group-ids }}" \
-          2>&1); then
-          echo "ERROR: Failed to launch instance"
-          echo "$RESPONSE"
-          exit 1
-        fi
-
-        INSTANCE_ID=$(echo "$RESPONSE" | jq -r '.Instances[0].InstanceId')
-
-        if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" == "null" ]; then
-          echo "ERROR: Could not parse instance ID from response"
-          echo "$RESPONSE"
-          exit 1
-        fi
-
-        echo "instance-id=$INSTANCE_ID" >> $GITHUB_OUTPUT
-        echo "✓ Launched instance: $INSTANCE_ID"
-
-    - name: Wait for instance to be running
+    - name: Wait for instance to be running and runner to register
       shell: bash
+      run: ./scripts/.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        EPHEMERAL_RUNNER_NAME: "runner-${{ github.run_id }}"
-      run: |
-        INSTANCE_ID="${{ steps.launch.outputs.instance-id }}"
-        echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
-
-        aws ec2 wait instance-running \
-          --region "${{ inputs.aws-region }}" \
-          --instance-ids $INSTANCE_ID
-
-        echo "✓ Instance is running"
-
-        echo "waiting 30 seconds for startup scripts..."
-        sleep 30
+        INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        REPO: ${{ github.repository }}
+        RUNNER_NAME: github-runner-${{ github.run_id }}
+        GITHUB_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
 
     - name: Summary
       shell: bash
