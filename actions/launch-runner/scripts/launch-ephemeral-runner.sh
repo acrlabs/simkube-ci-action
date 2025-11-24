@@ -26,7 +26,7 @@ TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
 # Launch EC2 instance
 echo "Executing: aws ec2 run-instances..."
-USER_DATA=$(envsubst < ./scripts/user-data.sh)
+USER_DATA=$(envsubst < "$GITHUB_ACTION_PATH/scripts/user-data.sh")
 if ! RESPONSE=$(aws ec2 run-instances \
     --region "$AWS_REGION" \
     --image-id "$AMI_ID" \
