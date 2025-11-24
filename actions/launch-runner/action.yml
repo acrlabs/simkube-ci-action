@@ -75,7 +75,7 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         REPO_URL: "https://github.com/${{ github.repository }}"
         RUNNER_LABELS: "${{ inputs.runner-labels }}"
-        EPHEMERAL_RUNNER_NAME: "runner-${{ github.run_id }}"
+        SIMKUBE_RUNNER_NAME: "github-runner-${{ github.run_id }}"
         RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
         AWS_REGION: ${{ inputs.aws-region }}
         AMI_ID: ${{ inputs.ami-id }}
