@@ -4,7 +4,7 @@ set -euo pipefail
 # Validate required inputs
 : "${REPO_URL:?REPO_URL is required}"
 : "${RUNNER_LABELS:?RUNNER_LABELS is required}"
-: "${EPHEMERAL_RUNNER_NAME:?EPHEMERAL_RUNNER_NAME is required}"
+: "${SIMKUBE_RUNNER_NAME:?SIMKUBE_RUNNER_NAME is required}"
 : "${RUNNER_TOKEN:?RUNNER_TOKEN is required}"
 : "${AWS_REGION:?AWS_REGION is required}"
 : "${AMI_ID:?AMI_ID is required}"
