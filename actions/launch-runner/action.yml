@@ -95,7 +95,7 @@ runs:
         AWS_REGION: ${{ inputs.aws-region }}
         REPO: ${{ github.repository }}
         RUNNER_NAME: github-runner-${{ github.run_id }}
-        GITHUB_PAT: ${{ inputs.SIMKUBE_RUNNER_PAT }}
+        GITHUB_PAT: ${{ inputs.inputs.simkube-runner-pat }}
 
     - name: Summary
       shell: bash
