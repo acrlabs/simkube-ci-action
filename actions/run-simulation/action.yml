@@ -26,12 +26,13 @@ runs:
       id: build-cmd
       shell: bash
       env:
-        PATH: "/home/ubuntu/.cargo/bin:$PATH"  # we should add cargo/bin to PATH in the AMI
+        PATH: "/home/ubuntu/.cargo/bin:/usr/bin:$PATH"  # we should add cargo/bin to PATH in the AMI
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
         DURATION: ${{ inputs.duration }}
         SPEED: ${{ inputs.speed }}
       run: |
+        echo $PATH
         # copy trace file to data
         cp '$TRACE_PATH' /var/kind/cluster/trace
 
@@ -62,7 +63,7 @@ runs:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       run: |
         echo "Waiting for simulation to reach Running state..."
-        kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME"
+        kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME" --timeout 2m
         echo "✓ Simulation is running!"
 
     - name: Wait for simulation to complete
@@ -71,7 +72,7 @@ runs:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       run: |
         echo "Waiting for simulation to complete..."
-        kubectl wait --for=condition=Finished simulation/"$SIMULATION_NAME"
+        kubectl wait --for=condition=Finished simulation/"$SIMULATION_NAME" --timeout 2h
         echo "✓ Simulation completed successfully!"
 
     - name: Display summary
