@@ -36,17 +36,17 @@ runs:
       run: |
         echo $PATH
         # copy trace file to data
-        cp '$TRACE_PATH' /var/kind/cluster/trace
+        cp "$TRACE_PATH" /var/kind/cluster/trace
 
         # Function to add optional flags
         add_flag() {
           if [ -n "$2" ]; then
-            CMD="$CMD --$1 '$2'"
+            CMD="$CMD --$1 \"$2\""
           fi
         }
 
         # Base command
-        CMD="skctl run --disable-metrics '$SIMULATION_NAME'"
+        CMD="skctl run --disable-metrics \"$SIMULATION_NAME\""
 
         # Add optional flags
         add_flag "speed" "$SPEED"
@@ -86,6 +86,6 @@ runs:
         echo ""
         echo "Simulation Completed!"
         echo ""
-        echo "Name:          '$SIMULATION_NAME'"
+        echo "Name:          \"$SIMULATION_NAME\""
         echo "Completed at:  $(date)"
         echo ""
