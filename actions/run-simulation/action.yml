@@ -22,11 +22,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Update path
+      shell: bash
+      run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
     - name: Run simulation
       id: build-cmd
       shell: bash
       env:
-        PATH: "/home/ubuntu/.cargo/bin:/usr/bin:$PATH"  # we should add cargo/bin to PATH in the AMI
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
         DURATION: ${{ inputs.duration }}
