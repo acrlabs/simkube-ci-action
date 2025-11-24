@@ -29,7 +29,7 @@ runs:
     - name: Run simulation
       id: build-cmd
       shell: bash
-      run: ./scripts/run-simulation.sh
+      run: "$GITHUB_ACTION_PATH/scripts/run-simulation.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
         TRACE_PATH: ${{ inputs.trace-path }}
