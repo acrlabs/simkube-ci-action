@@ -46,7 +46,7 @@ runs:
         }
 
         # Base command
-        CMD="skctl run --disable-metrics \"$SIMULATION_NAME\""
+        CMD="skctl run --disable-metrics \"$SIMULATION_NAME\" --hooks config/hooks/default.yml"
 
         # Add optional flags
         add_flag "speed" "$SPEED"
