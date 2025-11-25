@@ -69,7 +69,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        # TODO: add versioning logic when stable
 
       - name: Launch Ephemeral Runner
         uses: ./actions/launch-runner
