@@ -5,5 +5,5 @@ set -euo pipefail
 : "${SIMULATION_NAME:?SIMULATION_NAME is required}"
 
 echo "Waiting for simulation to complete..."
-kubectl wait --for=condition=Finished simulation/"$SIMULATION_NAME" --timeout 2h
+kubectl wait --for=jsonpath='{.status.state}'=Finished simulation/"$SIMULATION_NAME" --timeout 2h
 echo "✓ Simulation completed successfully!"
