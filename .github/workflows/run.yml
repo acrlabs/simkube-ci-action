@@ -46,7 +46,7 @@ on:  # yamllint disable-line rule:truthy
 
       duration:
         description: Simulation duration
-        required: true
+        required: false
         type: string
 
       speed:
