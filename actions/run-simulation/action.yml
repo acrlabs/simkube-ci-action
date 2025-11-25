@@ -26,6 +26,12 @@ runs:
       shell: bash
       run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
 
+    - name: Copy trace file to expected location
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/handle-trace.sh"
+      env:
+        TRACE_FILE: ${{ inputs.trace-path }}
+
     - name: Run simulation
       id: build-cmd
       shell: bash

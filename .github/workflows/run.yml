@@ -82,7 +82,6 @@ jobs:
           subnet-id: ${{ inputs.subnet-id }}
           security-group-ids: ${{ inputs.security-group-ids }}
 
-
   simulate:
     name: Run Simkube Simulation
     needs: launch-runner
@@ -90,26 +89,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Copy trace file to expected location
-        shell: bash
-        run: |
-          sudo mkdir -p /data
-          sudo chown ubuntu:ubuntu /data
-
-          TRACE_FILE="${{ inputs.trace-path }}"
-
-          if [ ! -f "$TRACE_FILE" ]; then
-            echo "ERROR: Trace file not found at $TRACE_FILE"
-            exit 1
-          fi
-
-          cp "$TRACE_FILE" /data/trace
-
-          if [ ! -s /data/trace ]; then
-            echo "ERROR: Trace file is empty"
-            exit 1
-          fi
 
       - name: Run simulation
         id: run
