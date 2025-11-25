@@ -1,8 +1,12 @@
 # simkube-ci-action
-Automate Simkube simulations as part of your GitHub CI/CD
+Automate Simkube simulations as part of your GitHub CI/CD!
 
-:construction: Work in progress. :construction:
+The simkube-ci-action will:
+- spin up our custom SimKube Runner AMI in your AWS environment
+-
 
+
+:construction: This action is a work in process alpha. :construction:
 
 ## Quick Start
 
@@ -13,22 +17,44 @@ Add secrets to your GitHub repo:
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
 
+### Permissions
+The credentials provided need, at a minimum, the following AWS permissions to execute the full workflow in your AWS account:
+- ec2:RunInstances
+- ec2:CreateTags
+- ec2:DescribeInstances
+- ec2:DescribeImages
+
+If you are using a trace in S3 the user will need these additional permissions:
+- TODO
 
 ### Usage
-
 Create a workflow in the repo with your trace
-```yaml
-name: Run Simkube Sim
 
-on: [ workflow_dispatch, pull_request ]
+#### Example usage
+
+```yaml
+---
+name: Run simulation
+
+on: [pull_request]
 
 jobs:
   test-run:
-    uses: ./.github/workflows/run.yml
+    uses: https://github.com/acrlabs/simkube-ci-action
     with:
-      simulation-name: example-simulation
-      duration: 5m
+      ami-id: ami-0ac57be3bde538a47
+      aws-region: us-west-2
+      duration: +5m
       instance-type: c7a.xlarge
-      trace-file: ./path/to/your/trace
-    secrets: inherit
+      security-group-ids: sg-0fd593b495c5e0ffd
+      simulation-name: test-sim
+      subnet-id: subnet-0cd4625c825e73e61
+      trace-path: ./cronjob.sktrace
+    secrets:
+      SIMKUBE_RUNNER_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
+
+## Development
+- TODO
