@@ -5,5 +5,5 @@ set -euo pipefail
 : "${SIMULATION_NAME:?SIMULATION_NAME is required}"
 
 echo "Waiting for simulation to reach Running state..."
-kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME" --timeout 2m
+kubectl wait --for=condition=Running simulation/"$SIMULATION_NAME" --timeout 5m
 echo "✓ Simulation is running!"
