@@ -9,6 +9,11 @@ set -euo pipefail
 : "${SPEED:-}"        # optional
 : "${DURATION:-}"     # optional
 
+# Wait for cluster to stabilize
+kubectl wait --for=condition=Ready pod -n kube-system -l app.kubernetes.io/name=kwok-controller --timeout=5m
+kubectl wait --for=condition=Ready pod -n simkube -l app.kubernetes.io/name=sk-ctrl --timeout=5m
+kubectl wait --for=condition=Ready pod -n cert-manager --all --timeout=5m
+
 # Current PATH
 echo "PATH=$PATH"
 
