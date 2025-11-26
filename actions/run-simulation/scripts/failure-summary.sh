@@ -16,8 +16,17 @@ echo "::group::Simulation YAML"
 kubectl get simulation "$SIMULATION_NAME" -o yaml || true
 echo "::endgroup::"
 
-echo "::group::Pod logs tail=100"
-kubectl logs -n simkube -l simulation="$SIMULATION_NAME" --tail=100 || true
+echo "Pod logs"
+echo "::group::sk-ctrl logs"
+kubectl logs -n simkube -l app.kubernetes.io/name=sk-ctrl --all-containers || true
+echo "::endgroup::"
+
+echo "::group::sk-tracer logs"
+kubectl logs -n simkube -l app.kubernetes.io/name=sk-tracer --all-containers || true
+echo "::endgroup::"
+
+echo "::group::sk-test-sim-driver logs"
+kubectl logs -n simkube -l job-name=sk-test-sim-driver --all-containers || true
 echo "::endgroup::"
 
 echo "::group::All Pods in simkube namespace"
