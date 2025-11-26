@@ -33,8 +33,8 @@ echo "Running: kubectl logs -n simkube -l app.kubernetes.io/name=sk-ctrl --all-c
 echo "-----------------------------------------"
 kubectl logs -n simkube -l app.kubernetes.io/name=sk-ctrl --all-containers --tail=100 || true
 echo "-----------------------------------------"
-echo "::endgroup::"
 echo ""
+echo "::endgroup::"
 
 echo "::group::sk-tracer logs:"
 echo "-----------------------------------------"
@@ -42,8 +42,8 @@ echo "Running: kubectl logs -n simkube -l app.kubernetes.io/name=sk-tracer --all
 echo "-----------------------------------------"
 kubectl logs -n simkube -l app.kubernetes.io/name=sk-tracer --all-containers --tail=100 || true
 echo "-----------------------------------------"
-echo "::endgroup::"
 echo ""
+echo "::endgroup::"
 
 echo "::group::sk-test-sim-driver logs:"
 echo "-----------------------------------------"
