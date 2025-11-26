@@ -1,0 +1,62 @@
+---
+name: Run Simkube Simulation
+description: Runs a simkube simulation on an ephemeral runner
+
+inputs:
+  simulation-name:
+    description: Name of the simulation to run
+    required: true
+
+  trace-path:
+    description: Path to the trace file
+    required: true
+
+  duration:
+    description: Simulation duration
+    required: false
+
+  speed:
+    description: Simulation speed
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Update path
+      shell: bash
+      run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
+
+    - name: Copy trace file to expected location
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/handle-trace.sh"
+      env:
+        TRACE_PATH: ${{ inputs.trace-path }}
+
+    - name: Run simulation
+      id: build-cmd
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/run-simulation.sh"
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+        TRACE_PATH: ${{ inputs.trace-path }}
+        DURATION: ${{ inputs.duration }}
+        SPEED: ${{ inputs.speed }}
+
+    - name: Wait for simulation to start
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-start.sh"
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+
+    - name: Wait for simulation to complete
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-complete.sh"
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+
+    - name: Display summary
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/display-summary.sh"
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+      if: success()
