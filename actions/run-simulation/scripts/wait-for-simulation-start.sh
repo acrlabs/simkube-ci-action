@@ -4,6 +4,6 @@ set -euo pipefail
 # Validate required inputs
 : "${SIMULATION_NAME:?SIMULATION_NAME is required}"
 
-echo "Waiting for simulation to reach Running state..."
+printf "Waiting for simulation to reach Running state...\n"
 kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NAME" --timeout 5m
-echo "✓ Simulation is running!"
+printf "✓ Simulation is running!\n"

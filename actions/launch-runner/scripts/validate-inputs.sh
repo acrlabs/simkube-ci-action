@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Validate AWS credentials
 if [[ -z "${AWS_ACCESS_KEY_ID:-}" || -z "${AWS_SECRET_ACCESS_KEY:-}" ]]; then
-    echo "ERROR: AWS credentials must be set as environment variables"
-    echo "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+    printf "ERROR: AWS credentials must be set as environment variables\n"
+    printf "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
     exit 1
 fi

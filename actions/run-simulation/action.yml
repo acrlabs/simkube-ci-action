@@ -24,7 +24,7 @@ runs:
   steps:
     - name: Update path
       shell: bash
-      run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
+      run: printf "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
 
     - name: Copy trace file to expected location
       shell: bash

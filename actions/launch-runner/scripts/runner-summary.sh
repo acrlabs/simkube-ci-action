@@ -9,11 +9,10 @@ set -euo pipefail
 : "${RUNNER_LABELS:?RUNNER_LABELS are required}"
 
 # Runner summary output
-echo "Runner Launch Successful"
-echo "Instance ID: \"$INSTANCE_ID\""
-echo "Runner Name: \"$SIMKUBE_RUNNER_NAME\""
-echo "Region: \"$AWS_REGION\""
-echo "Instance Type: \"$INSTANCE_TYPE\""
-echo ""
-echo "The runner is now available for jobs with labels: \"$RUNNER_LABELS\""
-echo "The runner will automatically terminate after completing one job (ephemeral mode)."
+printf "Runner Launch Successful!\n"
+printf "Instance ID: %s\n" "$INSTANCE_ID"
+printf "Runner Name: %s\n" "$SIMKUBE_RUNNER_NAME"
+printf "Region: %s\n" "$AWS_REGION"
+printf "Instance Type: %s\n\n" "$INSTANCE_TYPE"
+printf "The runner is now available for jobs with labels: %s\n" "$RUNNER_LABELS"
+printf "The runner will automatically terminate after completing one job (ephemeral mode).\n"

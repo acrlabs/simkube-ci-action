@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "Setting up GitHub Runner..."
+printf "Setting up GitHub Runner...\n"
 
 cat > /etc/github-runner.env << 'ENVFILE'
 GITHUB_REPOSITORY_URL=${REPO_URL}
@@ -10,15 +10,15 @@ GITHUB_RUNNER_NAME=${SIMKUBE_RUNNER_NAME}
 GITHUB_RUNNER_TOKEN=${RUNNER_TOKEN}
 ENVFILE
 
-echo "✓ Created runner configuration"
+printf "✓ Created runner configuration\n"
 
-echo "Starting GitHub Actions runner service..."
+printf "Starting GitHub Actions runner service...\n"
 systemctl start github-runner
 
 until systemctl is-active github-runner | grep -q "active"; do
-    echo "Waiting for GitHub Runner service..."
+    printf "Waiting for GitHub Runner service...\n"
     sleep 5
 done
 
-echo "✓ Runner service started"
-echo "Setup complete at: $(date)"
+printf "✓ Runner service started\n"
+printf "Setup complete at: %s\n" "$(date)"
