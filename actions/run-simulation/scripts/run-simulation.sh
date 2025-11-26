@@ -4,6 +4,8 @@ set -euo pipefail
 # Validate required inputs
 : "${SIMULATION_NAME:?SIMULATION_NAME is required}"
 : "${TRACE_PATH:?TRACE_PATH is required}"
+
+# Optional inputs
 : "${SPEED:-}"        # optional
 : "${DURATION:-}"     # optional
 
