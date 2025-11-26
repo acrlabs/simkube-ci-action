@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: "$GITHUB_ACTION_PATH/scripts/handle-trace.sh"
       env:
-        TRACE_FILE: ${{ inputs.trace-path }}
+        TRACE_PATH: ${{ inputs.trace-path }}
 
     - name: Run simulation
       id: build-cmd
