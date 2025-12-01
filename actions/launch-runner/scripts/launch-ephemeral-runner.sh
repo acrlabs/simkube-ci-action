@@ -14,7 +14,7 @@ set -euo pipefail
 : "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}"
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
 
-echo "Launching EC2 instance in $AWS_REGION..."
+printf "Launching EC2 instance in %s...\n" "$AWS_REGION"
 
 # Build tags
 TAG_SPECS="ResourceType=instance,Tags=["
@@ -25,7 +25,7 @@ TAG_SPECS="${TAG_SPECS}{Key=ManagedBy,Value=github-actions},"
 TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
 # Launch EC2 instance
-echo "Executing: aws ec2 run-instances..."
+printf "Executing: aws ec2 run-instances...\n"
 USER_DATA=$(envsubst < "$GITHUB_ACTION_PATH/scripts/user-data.sh")
 if ! RESPONSE=$(aws ec2 run-instances \
     --region "$AWS_REGION" \
@@ -37,20 +37,20 @@ if ! RESPONSE=$(aws ec2 run-instances \
     --subnet-id "$SUBNET_ID" \
     --security-group-ids "$SECURITY_GROUP_IDS" \
     2>&1); then
-    echo "ERROR: Failed to launch instance"
-    echo "$RESPONSE"
+    printf "ERROR: Failed to launch instance\n"
+    printf "%s\n" "$RESPONSE"
     exit 1
 fi
 
 # Extract instance ID
-INSTANCE_ID=$(echo "$RESPONSE" | jq -r '.Instances[0].InstanceId')
+INSTANCE_ID=$(jq -r '.Instances[0].InstanceId' <<< "$RESPONSE")
 
 if [[ -z "$INSTANCE_ID" || "$INSTANCE_ID" == "null" ]]; then
-    echo "ERROR: Could not parse instance ID from response"
-    echo "$RESPONSE"
+    printf "ERROR: Could not parse instance ID from response\n"
+    printf "%s\n" "$RESPONSE"
     exit 1
 fi
 
 # Output for next step in GitHub Action
-echo "instance-id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
-echo "✓ Launched instance: $INSTANCE_ID"
+printf "instance-id=%s\n" "$INSTANCE_ID" >> "$GITHUB_OUTPUT"
+printf "✓ Launched instance:%s\n" "$INSTANCE_ID"

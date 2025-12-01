@@ -12,16 +12,16 @@ MAX_RETRIES=30
 SLEEP_INTERVAL=5
 
 # Wait for instance to be running
-echo "Waiting for instance $INSTANCE_ID to reach 'running' state..."
+printf "Waiting for instance %s to reach 'running' state...\n" "$INSTANCE_ID"
 
 aws ec2 wait instance-running \
     --region "$AWS_REGION" \
     --instance-ids "$INSTANCE_ID"
 
-echo "✓ Instance is running"
+printf "✓ Instance is running\s"
 
 # Wait for GitHub Actions runner registration
-echo "Waiting for runner '$SIMKUBE_RUNNER_NAME' to register in '$REPO'..."
+printf "Waiting for runner %s to register in %s...\n" "$SIMKUBE_RUNNER_NAME" "$REPO"
 
 for i in $(seq 1 "$MAX_RETRIES"); do
     RUNNER_STATUS=$(curl -sS -H "Authorization: token $GITHUB_PAT" \
@@ -30,14 +30,14 @@ for i in $(seq 1 "$MAX_RETRIES"); do
         | jq -r --arg name "$SIMKUBE_RUNNER_NAME" '.runners[] | select(.name==$name) | .status')
 
     if [[ "$RUNNER_STATUS" == "online" ]]; then
-        echo "✓ Runner '$SIMKUBE_RUNNER_NAME' is online"
+        printf "✓ Runner %s is online\n" "$SIMKUBE_RUNNER_NAME"
         exit 0
     fi
 
-    echo "[$i/$MAX_RETRIES] Runner not online yet. Status: ${RUNNER_STATUS:-unknown}. Retrying in $SLEEP_INTERVAL seconds..."
+    printf "[%d/%d] Runner not online yet. Status: %s. Retrying in %d seconds...\n" "$i" "$MAX_RETRIES" "${RUNNER_STATUS:-unknown}" "$SLEEP_INTERVAL"
     sleep "$SLEEP_INTERVAL"
 
 done
 
-echo "ERROR: Runner '$SIMKUBE_RUNNER_NAME' did not come online after $((MAX_RETRIES * SLEEP_INTERVAL)) seconds"
+printf "ERROR: Runner %s did not come online after %d seconds\n" "$SIMKUBE_RUNNER_NAME" "$((MAX_RETRIES * SLEEP_INTERVAL))"
 exit 1

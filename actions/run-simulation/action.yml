@@ -24,7 +24,7 @@ runs:
   steps:
     - name: Update path
       shell: bash
-      run: echo "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
+      run: printf "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
 
     - name: Copy trace file to expected location
       shell: bash
@@ -54,9 +54,16 @@ runs:
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
 
+    - name: Collect failure information
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/scripts/failure-summary.sh"
+      env:
+        SIMULATION_NAME: ${{ inputs.simulation-name }}
+      if: failure()
+
     - name: Display summary
       shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/display-summary.sh"
+      run: "$GITHUB_ACTION_PATH/scripts/success-summary.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       if: success()

@@ -4,11 +4,26 @@ set -euo pipefail
 # Validate required inputs
 : "${SIMULATION_NAME:?SIMULATION_NAME is required}"
 : "${TRACE_PATH:?TRACE_PATH is required}"
+
+# Optional inputs
 : "${SPEED:-}"        # optional
 : "${DURATION:-}"     # optional
 
+# Wait for cluster to stabilize
+printf "Waiting for kwok to be Ready...\n"
+kubectl wait --for=condition=Ready pod -n kube-system -l app.kubernetes.io/instance=kwok --timeout=5m
+printf "✓ kwok Ready!\n"
+
+printf "Waiting for sk-ctrl to be Ready...\n"
+kubectl wait --for=condition=Ready pod -n simkube -l app.kubernetes.io/name=sk-ctrl --timeout=5m
+printf "✓ sk-ctrl Ready!\n"
+
+printf "Waiting for cert-manager to be Ready...\n"
+kubectl wait --for=condition=Ready pod -n cert-manager --all --timeout=5m
+printf "✓ cert-manager Ready!\n"
+
 # Current PATH
-echo "PATH=$PATH"
+printf "PATH=%s\n" "$PATH"
 
 # Copy trace file to default trace ingress
 cp "$TRACE_PATH" /var/kind/cluster/trace
@@ -27,9 +42,8 @@ CMD="skctl run --disable-metrics \"$SIMULATION_NAME\" --hooks config/hooks/defau
 add_flag "speed" "$SPEED"
 add_flag "duration" "$DURATION"
 
-echo ""
-echo "Command to execute:"
-echo "$CMD"
-echo ""
-echo "Starting simulation..."
+printf ""
+printf "\nCommand to execute:\n"
+printf "%s\n\n" "$CMD"
+printf "Starting simulation...\n"
 eval "$CMD"
