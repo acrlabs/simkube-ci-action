@@ -1,9 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-: "${SIMULATION_NAME:?SIMULATION_NAME is required}"
-
-
 printf "\n❌ Simulation FAILED\n"
 printf "Expand for details below:\n"
 
@@ -15,7 +12,6 @@ kubectl describe simulation "$SIMULATION_NAME" || true
 printf "-----------------------------------------\n"
 printf "::endgroup::\n"
 
-
 printf "::group::📄 Simulation YAML\n"
 printf "-----------------------------------------\n"
 printf "Running: kubectl get simulation %s -o yaml\n" "$SIMULATION_NAME"
@@ -23,7 +19,6 @@ printf "-----------------------------------------\n"
 kubectl get simulation "$SIMULATION_NAME" -o yaml || true
 printf "-----------------------------------------\n"
 printf "::endgroup::\n"
-
 
 printf "🪵 Pod logs tail=100:\n"
 printf "::group::sk-ctrl logs:\n"

@@ -22,16 +22,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Update path
-      shell: bash
-      run: printf "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
-
-    - name: Copy trace file to expected location
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/handle-trace.sh"
-      env:
-        TRACE_PATH: ${{ inputs.trace-path }}
-
     - name: Run simulation
       id: build-cmd
       shell: bash
@@ -42,28 +32,9 @@ runs:
         DURATION: ${{ inputs.duration }}
         SPEED: ${{ inputs.speed }}
 
-    - name: Wait for simulation to start
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-start.sh"
-      env:
-        SIMULATION_NAME: ${{ inputs.simulation-name }}
-
-    - name: Wait for simulation to complete
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/wait-for-simulation-complete.sh"
-      env:
-        SIMULATION_NAME: ${{ inputs.simulation-name }}
-
     - name: Collect failure information
       shell: bash
       run: "$GITHUB_ACTION_PATH/scripts/failure-summary.sh"
       env:
         SIMULATION_NAME: ${{ inputs.simulation-name }}
       if: failure()
-
-    - name: Display summary
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/success-summary.sh"
-      env:
-        SIMULATION_NAME: ${{ inputs.simulation-name }}
-      if: success()
