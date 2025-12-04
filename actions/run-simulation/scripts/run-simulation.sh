@@ -67,16 +67,6 @@ printf "Starting simulation...\n"
 eval "$CMD"
 
 # Wait for simulation
-printf "Waiting for simulation to reach Running state...\n"
-kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NAME" --timeout 5m
-printf "✓ Simulation is running!\n"
-
-printf "Waiting for simulation to complete..."
-kubectl wait --for=jsonpath='{.status.state}'=Finished simulation/"$SIMULATION_NAME" --timeout 2h
-printf "✓ Simulation completed successfully!\n"
-printf "Name: %s\n" "$SIMULATION_NAME"
-printf "Completed at: %s\n" "$(date)"
-
 MAX_RETRIES_SIM="${MAX_RETRIES_SIM:-720}"
 SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
 
