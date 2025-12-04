@@ -94,8 +94,6 @@ _wait_for_state() {
             return 0
         fi
 
-        printf "DEBUG: Current state='%s' Desired state='%s'\n" "$state" "$target_state" >&2
-
         ((retries++))
         sleep "$SLEEP_INTERVAL_SIM"
     done
