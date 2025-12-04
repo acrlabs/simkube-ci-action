@@ -71,9 +71,7 @@ MAX_RETRIES_SIM="${MAX_RETRIES_SIM:-720}"
 SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
 
 _get_state() {
-    local state
-    state="$(kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || true)"
-    printf "%s" "$state"
+    kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || true
 }
 
 _wait_for_state() {
