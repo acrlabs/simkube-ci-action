@@ -102,7 +102,7 @@ _wait_for_state() {
 }
 
 printf "Waiting for simulation to reach Running state...\n"
-_wait_for_state "Running"
+kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NAME" --timeout 2h
 printf "✓ Simulation is running!\n"
 
 printf "Waiting for simulation to reach Finished state...\n"

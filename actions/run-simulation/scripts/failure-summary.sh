@@ -24,6 +24,6 @@ _run_group "📄 Simulation YAML" "kubectl get simulation \"$SIMULATION_NAME\" -
 _run_group "sk-ctrl logs" "kubectl logs -n simkube -l app.kubernetes.io/name=sk-ctrl --all-containers --tail=100"
 _run_group "sk-tracer logs" "kubectl logs -n simkube -l app.kubernetes.io/name=sk-tracer --all-containers --tail=100"
 _run_group "sk-test-sim-driver logs" "kubectl logs -n simkube -l job-name=sk-test-sim-driver --all-containers --tail=100"
-_run_group "📦 All Pods in simkube namespace" kubectl get pods -n simkube
+_run_group "📦 All Pods in simkube namespace" "kubectl get pods -n simkube"
 _run_group "📝 Recent events tail=20" "kubectl get events -n simkube --sort-by='.lastTimestamp' | tail -n 20"
 _run_group "🌎 Get all" "kubectl get all --all-namespaces"
