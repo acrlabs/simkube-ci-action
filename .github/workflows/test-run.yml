@@ -9,7 +9,7 @@ jobs:
     with:
       ami-id: ami-0ac57be3bde538a47
       aws-region: us-west-2
-      duration: +5m
+      duration: +1m
       instance-type: c7a.xlarge
       security-group-ids: sg-0fd593b495c5e0ffd
       simulation-name: test-sim
