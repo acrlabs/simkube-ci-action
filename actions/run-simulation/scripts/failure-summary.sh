@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-SIMULATION_NAME=""
-
 # Print a command and run it inside a GitHub Actions group
 _run_group() {
     local group_name=$1

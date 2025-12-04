@@ -110,9 +110,9 @@ _wait_for_state() {
 }
 
 printf "Waiting for simulation to reach Running state...\n"
-wait_for_state "Running"
+_wait_for_state "Running"
 printf "✓ Simulation is running!\n"
 
 printf "Waiting for simulation to reach Finished state...\n"
-wait_for_state "Finished"
+_wait_for_state "Finished"
 printf "✓ Simulation completed successfully!\n"
