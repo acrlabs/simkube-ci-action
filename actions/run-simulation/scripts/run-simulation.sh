@@ -71,7 +71,10 @@ MAX_RETRIES_SIM="${MAX_RETRIES_SIM:-720}"
 SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
 
 _get_state() {
-    kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || true
+    local out=""
+    out=$(kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null) || true
+    printf "%s" "$out"
+    return 0
 }
 
 _wait_for_state() {
@@ -84,7 +87,7 @@ _wait_for_state() {
 
         if [[ "$state" == "Failed" ]]; then
             printf "Error: Simulation Failed.\n"
-            exit 1
+            return 1
         fi
 
         if [[ "$state" == "$target_state" ]]; then
@@ -98,7 +101,7 @@ _wait_for_state() {
     done
 
     printf "ERROR: Timeout waiting for %s state. Last state %s\n" "$target_state" "$state"
-    exit 1
+    return 1
 }
 
 printf "Waiting for simulation to reach Running state...\n"
@@ -106,6 +109,9 @@ kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NA
 printf "✓ Simulation is running!\n"
 
 printf "Waiting for simulation to reach Finished state...\n"
-_wait_for_state "Finished"
+if ! _wait_for_state "Finished"; then
+    exit 1
+fi
+
 printf "✓ Simulation completed successfully!\n"
 exit 0
