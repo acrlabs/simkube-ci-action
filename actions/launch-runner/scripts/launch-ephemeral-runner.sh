@@ -20,6 +20,7 @@ fi
 
 # Extract token from response body
 RUNNER_TOKEN=$(jq -r .token <<< "$BODY")
+export RUNNER_TOKEN
 
 if [ -z "$RUNNER_TOKEN" ] || [ "$RUNNER_TOKEN" == "null" ]; then
     printf "ERROR: Failed to generate runner token\n"
