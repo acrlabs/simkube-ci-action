@@ -72,8 +72,6 @@ SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
 
 _get_state() {
     kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || true
-    printf "DEBUG: Current state='%s'\n" "$state" >&2
-    printf "%s" "$state"
 }
 
 _wait_for_state() {
@@ -92,6 +90,8 @@ _wait_for_state() {
         if [[ "$state" == "$target_state" ]]; then
             return 0
         fi
+
+        printf "DEBUG: Current state='%s' Desired state='%s'\n" "$state" "$target_state" >&2
 
         ((retries++))
         sleep "$SLEEP_INTERVAL_SIM"
