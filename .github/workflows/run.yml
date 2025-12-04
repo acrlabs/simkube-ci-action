@@ -3,7 +3,64 @@ name: Run Simkube Simulation
 
 on:  # yamllint disable-line rule:truthy
   workflow_call:
+    inputs:
+      ami-id:
+        description: AMI ID for SimKube Runner AMI
+        required: true
+        type: string
 
+      instance-type:
+        description: EC2 instance type
+        required: false
+        type: string
+
+      aws-region:
+        description: AWS region to launch in
+        required: true
+        type: string
+
+      subnet-id:
+        description: Subnet ID
+        required: true
+        type: string
+
+      security-group-ids:
+        description: Space-separated security group IDs
+        required: true
+        type: string
+
+      runner-labels:
+        description: Additional labels for the runner (comma-separated)
+        required: false
+        type: string
+
+      simulation-name:
+        description: Name of the simulation to run
+        required: true
+        type: string
+
+      trace-path:
+        description: Path to the trace file
+        required: true
+        type: string
+
+      duration:
+        description: Simulation duration
+        required: false
+        type: string
+
+      speed:
+        description: Simulation speed
+        required: false
+        type: string
+
+    secrets:
+      SIMKUBE_RUNNER_PAT:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 jobs:
   launch-runner:
     name: Launch custom Simkube runner in AWS EC2
