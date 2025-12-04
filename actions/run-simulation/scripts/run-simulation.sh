@@ -107,6 +107,7 @@ _wait_for_state() {
     done
 
     printf "ERROR: Timeout waiting for %s state. Last state %s\n" "$target_state" "$state"
+    exit 1
 }
 
 printf "Waiting for simulation to reach Running state...\n"
@@ -116,3 +117,4 @@ printf "✓ Simulation is running!\n"
 printf "Waiting for simulation to reach Finished state...\n"
 _wait_for_state "Finished"
 printf "✓ Simulation completed successfully!\n"
+exit 0
