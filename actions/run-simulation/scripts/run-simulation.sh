@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Update path
-printf "/home/ubuntu/.cargo/bin" >> "$GITHUB_PATH"
+# Make sure skctl can be found
+export PATH="/home/ubuntu/.cargo/bin:$PATH"
+export PATH="/usr/local/bin:$PATH"
 
 # Copy trace file to expected location
 sudo mkdir -p /data
