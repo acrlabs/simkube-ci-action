@@ -71,7 +71,7 @@ MAX_RETRIES_SIM="${MAX_RETRIES_SIM:-720}"
 SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
 
 _get_state() {
-    kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || printf ""
+    kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null || true
     printf "DEBUG: Current state='%s'\n" "$state" >&2
     printf "%s" "$state"
 }
@@ -84,15 +84,14 @@ _wait_for_state() {
     while (( retries < MAX_RETRIES_SIM )); do
         state="$(_get_state)"
 
-        case "$state" in
-            "Failed")
-                printf "Error: Simulation Failed.\n"
-                exit 1
-                ;;
-            "$target_state")
-                return 0
-                ;;
-        esac
+        if [[ "$state" == "Failed" ]]; then
+            printf "Error: Simulation Failed.\n"
+            exit 1
+        fi
+
+        if [[ "$state" == "$target_state" ]]; then
+            return 0
+        fi
 
         ((retries++))
         sleep "$SLEEP_INTERVAL_SIM"
