@@ -14,8 +14,8 @@ printf "Waiting for kwok to be Ready...\n"
 kubectl wait --for=condition=Ready pod -n kube-system -l app.kubernetes.io/instance=kwok --timeout=5m
 printf "✓ kwok Ready!\n"
 
-printf "Waiting for sk-ctrl to be Ready...\n"
-kubectl wait --for=condition=Ready pod -n simkube -l app.kubernetes.io/name=sk-ctrl --timeout=5m
+printf "Waiting for sk-ctrl deployment to complete...\n"
+kubectl rollout status deployment/sk-ctrl-depl -n simkube --timeout=5m
 printf "✓ sk-ctrl Ready!\n"
 
 printf "Waiting for cert-manager to be Ready...\n"
