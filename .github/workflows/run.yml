@@ -61,7 +61,6 @@ on:  # yamllint disable-line rule:truthy
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-
 jobs:
   launch-runner:
     name: Launch custom Simkube runner in AWS EC2
