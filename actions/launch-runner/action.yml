@@ -41,31 +41,9 @@ inputs:
     description: AWS secret access key
     required: true
 
-outputs:
-  instance-id:
-    description: EC2 instance ID for runner that was launched
-    value: ${{ steps.launch.outputs.instance-id }}
-
 runs:
   using: composite
   steps:
-    - name: Validate inputs
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/validate-inputs.sh"
-      env:
-        AMI_ID: ${{ inputs.ami-id }}
-        SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-
-    - name: Generate runner registration token
-      id: token
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/generate-token.sh"
-      env:
-        SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-
     - name: Launch EC2 instance
       id: launch
       shell: bash
@@ -73,10 +51,10 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
         REPO_URL: "https://github.com/${{ github.repository }}"
         RUNNER_LABELS: "${{ inputs.runner-labels }}"
         SIMKUBE_RUNNER_NAME: "github-runner-${{ github.run_id }}"
-        RUNNER_TOKEN: "${{ steps.token.outputs.token }}"
         AWS_REGION: ${{ inputs.aws-region }}
         AMI_ID: ${{ inputs.ami-id }}
         INSTANCE_TYPE: ${{ inputs.instance-type }}
@@ -84,26 +62,3 @@ runs:
         SECURITY_GROUP_IDS: ${{ inputs.security-group-ids }}
         GITHUB_RUN_ID: ${{ github.run_id }}
         GITHUB_REPOSITORY: ${{ github.repository }}
-
-    - name: Wait for instance to be running and runner to register
-      shell: bash
-      run: "$GITHUB_ACTION_PATH/scripts/wait-for-runner.sh"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
-        AWS_REGION: ${{ inputs.aws-region }}
-        REPO: ${{ github.repository }}
-        SIMKUBE_RUNNER_NAME: github-runner-${{ github.run_id }}
-        GITHUB_PAT: ${{ inputs.simkube-runner-pat }}
-
-    - name: Summary
-      shell: bash
-      if: success()
-      run: "$GITHUB_ACTION_PATH/scripts/runner-summary.sh"
-      env:
-        INSTANCE_ID: ${{ steps.launch.outputs.instance-id }}
-        SIMKUBE_RUNNER_NAME: github-runner-${{ github.run_id }}
-        AWS_REGION: ${{ inputs.aws-region }}
-        INSTANCE_TYPE: ${{ inputs.instance-type }}
-        RUNNER_LABELS: "${{ inputs.runner-labels }}"

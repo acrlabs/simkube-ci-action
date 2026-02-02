@@ -7,7 +7,7 @@ jobs:
   test-run:
     uses: ./.github/workflows/run.yml
     with:
-      ami-id: ami-0ac57be3bde538a47
+      ami-id: ami-05ca33a048526d8a5
       aws-region: us-west-2
       duration: +5m
       instance-type: c7a.xlarge

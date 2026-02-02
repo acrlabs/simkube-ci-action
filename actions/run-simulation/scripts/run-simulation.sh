@@ -1,26 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validate required inputs
-: "${SIMULATION_NAME:?SIMULATION_NAME is required}"
-: "${TRACE_PATH:?TRACE_PATH is required}"
+# Make sure skctl can be found
+export PATH="/home/ubuntu/.cargo/bin:$PATH"
+export PATH="/usr/local/bin:$PATH"
 
-# Optional inputs
-: "${SPEED:-}"        # optional
-: "${DURATION:-}"     # optional
+# Copy trace file to expected location
+sudo mkdir -p /data
+sudo chown ubuntu:ubuntu /data
+
+if [ ! -f "$TRACE_PATH" ]; then
+    printf "ERROR: Trace file not found at %s\n" "$TRACE_PATH"
+    exit 1
+fi
+
+cp "$TRACE_PATH" /data/trace
+
+if [ ! -s /data/trace ]; then
+    printf "ERROR: Trace file is empty\n"
+    exit 1
+fi
+
+printf "Validating trace file...\n"
+if ! skctl validate check /data/trace; then
+    printf "ERROR: Trace file validation failed\n"
+    exit 1
+fi
 
 # Wait for cluster to stabilize
+printf "Waiting for cert-manager to be Ready...\n"
+kubectl wait --for=condition=Ready pod -n cert-manager --all --timeout=5m
+printf "✓ cert-manager Ready!\n"
+
 printf "Waiting for kwok to be Ready...\n"
 kubectl wait --for=condition=Ready pod -n kube-system -l app.kubernetes.io/instance=kwok --timeout=5m
 printf "✓ kwok Ready!\n"
 
-printf "Waiting for sk-ctrl to be Ready...\n"
-kubectl wait --for=condition=Ready pod -n simkube -l app.kubernetes.io/name=sk-ctrl --timeout=5m
+printf "Waiting for sk-ctrl deployment to complete...\n"
+kubectl rollout status deployment/sk-ctrl-depl -n simkube --timeout=5m
 printf "✓ sk-ctrl Ready!\n"
-
-printf "Waiting for cert-manager to be Ready...\n"
-kubectl wait --for=condition=Ready pod -n cert-manager --all --timeout=5m
-printf "✓ cert-manager Ready!\n"
 
 # Current PATH
 printf "PATH=%s\n" "$PATH"
@@ -47,3 +65,51 @@ printf "\nCommand to execute:\n"
 printf "%s\n\n" "$CMD"
 printf "Starting simulation...\n"
 eval "$CMD"
+
+# Wait for simulation
+MAX_RETRIES_SIM="${MAX_RETRIES_SIM:-720}"
+SLEEP_INTERVAL_SIM="${SLEEP_INTERVAL_SIM:-10}"
+
+_get_state() {
+    local out=""
+    out=$(kubectl get simulation "$SIMULATION_NAME" -o jsonpath='{.status.state}' 2>/dev/null) || true
+    printf "%s" "$out"
+    return 0
+}
+
+_wait_for_state() {
+    local target_state="$1"
+    local state=""
+    local retries=0
+
+    while (( retries < MAX_RETRIES_SIM )); do
+        state="$(_get_state)"
+
+        if [[ "$state" == "Failed" ]]; then
+            printf "Error: Simulation Failed.\n"
+            return 1
+        fi
+
+        if [[ "$state" == "$target_state" ]]; then
+            return 0
+        fi
+
+        ((retries++))
+        sleep "$SLEEP_INTERVAL_SIM"
+    done
+
+    printf "ERROR: Timeout waiting for %s state. Last state %s\n" "$target_state" "$state"
+    return 1
+}
+
+printf "Waiting for simulation to reach Running state...\n"
+kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NAME" --timeout 2h
+printf "✓ Simulation is running!\n"
+
+printf "Waiting for simulation to reach Finished state...\n"
+if ! _wait_for_state "Finished"; then
+    exit 1
+fi
+
+printf "✓ Simulation completed successfully!\n"
+exit 0
