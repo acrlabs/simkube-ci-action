@@ -1,0 +1,23 @@
+---
+default: true
+
+MD001: false  # heading increment one at a time
+MD007: false  # unordered list indentation
+MD013:        # line length
+  line_length: 120
+  code_blocks: false
+  headings: false
+  tables: false
+MD024: false  # no duplicate headings
+MD026: false  # no trailing punctuation in headings
+MD033: false  # inline HTML
+MD041: false  # first line top level heading
+MD045: false  # no alt text
+MD049: false  # emphasis style
+MD051:        # link-fragments
+  ignored_pattern: fn
+MD053: false  # link-image-reference definitions needed
+MD055: false  # table pipe style
+MD056: false  # table column count
+MD059: false  # descriptive link text
+MD060: false  # table column style
