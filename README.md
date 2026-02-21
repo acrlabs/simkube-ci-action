@@ -1,10 +1,11 @@
 # simkube-ci-action
+
 Automate Simkube simulations as part of your GitHub CI/CD!
 
 The simkube-ci-action will:
+
 - spin up our custom SimKube Runner AMI in your AWS environment
 -
-
 
 :construction: This action is a work in process alpha. :construction:
 
@@ -13,21 +14,26 @@ The simkube-ci-action will:
 ### Setup
 
 Add secrets to your GitHub repo:
+
 - `SIMKUBE_RUNNER_PAT` - personal access token with repo scope
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
 
 ### Permissions
+
 The credentials provided need, at a minimum, the following AWS permissions to execute the full workflow in your AWS account:
+
 - ec2:RunInstances
 - ec2:CreateTags
 - ec2:DescribeInstances
 - ec2:DescribeImages
 
 If you are using a trace in S3 the user will need these additional permissions:
+
 - TODO
 
 ### Usage
+
 Create a workflow in the repo with your trace
 
 #### Example usage
@@ -57,4 +63,5 @@ jobs:
 ```
 
 ## Development
+
 - TODO
