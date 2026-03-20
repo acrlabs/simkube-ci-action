@@ -3,7 +3,7 @@ set -euo pipefail
 
 printf "Setting up GitHub Runner...\n"
 
-cat > /etc/github-runner.env << 'ENVFILE'
+cat > /etc/github-runner.env << ENVFILE
 GITHUB_REPOSITORY_URL=${REPO_URL}
 GITHUB_RUNNER_LABELS=${RUNNER_LABELS}
 GITHUB_RUNNER_NAME=${SIMKUBE_RUNNER_NAME}
