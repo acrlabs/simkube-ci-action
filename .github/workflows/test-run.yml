@@ -8,6 +8,7 @@ jobs:
     uses: ./.github/workflows/run.yml
     with:
       ami-id: ami-07432797c0bf41f47
+      keep-alive: true
       aws-region: us-west-2
       duration: +5m
       instance-type: c7a.xlarge
