@@ -59,6 +59,8 @@ CMD="skctl run --disable-metrics \"$SIMULATION_NAME\" --hooks config/hooks/defau
 # Add optional flags
 add_flag "speed" "$SPEED"
 add_flag "duration" "$DURATION"
+add_flag "driver-image" "$DRIVER_IMAGE"
+add_flag "driver-verbosity" "$DRIVER_VERBOSITY"
 
 printf ""
 printf "\nCommand to execute:\n"
