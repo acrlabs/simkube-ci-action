@@ -54,7 +54,7 @@ runs:
       shell: bash
       run: "$GITHUB_ACTION_PATH/scripts/launch-ephemeral-runner.sh"
       env:
-        KEEP_ALIVE: ${{ inputs.keep_alive }}
+        KEEP_ALIVE: ${{ inputs.keep-alive }}
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         SIMKUBE_RUNNER_PAT: ${{ inputs.simkube-runner-pat }}
