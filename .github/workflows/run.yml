@@ -73,6 +73,7 @@ jobs:
         uses: ./actions/launch-runner
         with:
           ami-id: ${{ inputs.ami-id }}
+          keep-alive: true
           instance-type: ${{ inputs.instance-type }}
           aws-region: ${{ inputs.aws-region }}
           simkube-runner-pat: ${{ secrets.SIMKUBE_RUNNER_PAT }}
