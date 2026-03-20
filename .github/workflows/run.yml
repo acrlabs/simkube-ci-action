@@ -9,6 +9,11 @@ on:  # yamllint disable-line rule:truthy
         required: true
         type: string
 
+      keep-alive:
+        description: "Keep runner alive after job completion for debugging"
+        required: false
+        type: string
+
       instance-type:
         description: EC2 instance type
         required: false
@@ -73,7 +78,7 @@ jobs:
         uses: ./actions/launch-runner
         with:
           ami-id: ${{ inputs.ami-id }}
-          keep-alive: true
+          keep-alive: ${{ inputs.keep-alive}}
           instance-type: ${{ inputs.instance-type }}
           aws-region: ${{ inputs.aws-region }}
           simkube-runner-pat: ${{ secrets.SIMKUBE_RUNNER_PAT }}
