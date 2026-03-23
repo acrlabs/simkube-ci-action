@@ -12,7 +12,7 @@ jobs:
       aws-region: us-west-2
       duration: +5m
       driver-verbosity: info
-      driver-image: quay.io/appliedcomputing/sk-driver:v2.4.0
+      driver-image: quay.io/appliedcomputing/sk-driver:v2.4.4
       instance-type: c7a.xlarge
       security-group-ids: sg-0fd593b495c5e0ffd
       simulation-name: test-sim
