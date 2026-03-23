@@ -19,6 +19,14 @@ inputs:
     description: Simulation speed
     required: false
 
+  driver-image:
+    description: name of the docker image to use for sk-driver
+    required: false
+
+  driver-verbosity:
+    description: driver log verbosity
+    required: false
+
 runs:
   using: composite
   steps:
@@ -31,6 +39,8 @@ runs:
         TRACE_PATH: ${{ inputs.trace-path }}
         DURATION: ${{ inputs.duration }}
         SPEED: ${{ inputs.speed }}
+        DRIVER_IMAGE: ${{ inputs.driver-image }}
+        DRIVER_VERBOSITY: ${{ inputs.driver-verbosity }}
 
     - name: Collect failure information
       shell: bash

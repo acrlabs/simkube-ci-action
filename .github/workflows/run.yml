@@ -59,6 +59,16 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: string
 
+      driver-image:
+        description: Name of the docker image to use for sk-driver
+        required: false
+        type: string
+
+      driver-verbosity:
+        description: Driver log verbosity
+        required: false
+        type: string
+
     secrets:
       SIMKUBE_RUNNER_PAT:
         required: true
@@ -103,3 +113,5 @@ jobs:
           duration: ${{ inputs.duration }}
           speed: ${{ inputs.speed }}
           trace-path: ${{ inputs.trace-path}}
+          driver-verbosity: ${{ inputs.driver-verbosity}}
+          driver-image: ${{ inputs.driver-image}}
