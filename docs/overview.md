@@ -11,7 +11,7 @@ These runners are intended for teams that want reliable, repeatable simulation a
 
 ## Quick Start guides
 
-- [Run SimKube in CI](simkube/docs/ci-sim.md)
+- [Run SimKube in CI](/simkube/docs/ci-sim.md)
 
 ## Next steps
 
