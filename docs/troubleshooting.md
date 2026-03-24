@@ -107,7 +107,7 @@ See [Usage](./usage.md) for full permissions or our [example IAM policy](../exam
 
 ### Symptoms
 
-- Commonly `InvalidAMIID.NotFound`
+- `InvalidAMIID.NotFound` errors
 - AMI not visible in console
 - launch fails immediately
 
@@ -153,7 +153,7 @@ This group of issues is usually related to SimKube configuration files.
 ### Common Causes
 
 - Incompatible driver version
-- Invalid configuration passed to driver (the most common cause)
+- Invalid configuration passed to driver
 - Missing AMI dependencies (if not using the ACRL SimKube AMIs)
 
 ### Fixes
@@ -178,8 +178,18 @@ configurations, not in CI using `simkube-ci-action`.
 ### Checks
 
 - Simulation requires a [hooks configuration file](https://simkube.dev/simkube/docs/adv/hooks/)
+  - check the path to your hooks
+
+    ```sh
+    ls path/to/your/hooks
+    ```
+
 - Simulation requires a [trace artifact](https://simkube.dev/simkube/docs/adv/traces/) to replay
-- Check paths to resources
+  - check the path to your trace
+
+    ```sh
+    ls path/to/your/trace
+    ```
 
 ### Fixes
 
