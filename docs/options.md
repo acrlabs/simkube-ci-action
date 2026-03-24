@@ -18,11 +18,13 @@ template: docs.html
 | **aws-access-key-id**      | AWS access key ID                                |    ✅    |
 | **aws-secret-acccess-key** | AWS secret access key                            |    ✅    |
 
+---
+
 ## `run-simulation` configuration options
 
 `run-simulation` exposes a basic set of [skctl](https://simkube.dev/simkube/docs/components/skctl/) options
 
-Implemented features options:
+Implemented options:
 
 | Option               | Description                   | Required |
 | :------------------- | :---------------------------- | :------: |

@@ -8,12 +8,12 @@ This section covers common issues when running simulations both in custom config
 
 Most problems fall into one of the following categories:
 
-0. Authentication & Permissions Issues
-1. AMI availability
-2. Simulation startup failures
-3. Simulation runtime failures
-4. Misconfiguration
-5. CI Specific failures
+1. Authentication & Permissions Issues
+2. AMI availability
+3. Simulation startup failures
+4. Simulation runtime failures
+5. Misconfiguration
+6. CI Specific failures
 
 ---
 
@@ -25,11 +25,11 @@ Most problems fall into one of the following categories:
 | Sim fails immediately      | Credentials or permissions    |
 | Starts then crashes        | Driver config                 |
 | Missing file errors        | Hooks or trace files          |
-| Works locally, fails in CI | Env/config mismatch           |
+| Works locally, fails in CI | Config mismatch               |
 
 ---
 
-## 0.0 Authentication & Permissions Issues
+## 1.0 Authentication & Permissions Issues
 
 ### Symptoms
 
@@ -39,7 +39,7 @@ Most problems fall into one of the following categories:
 
 Investigate these potential causes:
 
-## 0.1 GitHub PAT Issues
+## 1.1 GitHub PAT Issues
 
 - Missing or expired Personal Access Token (PAT)
 - Insufficient PAT scope
@@ -71,7 +71,7 @@ Investigate these potential causes:
 
 ---
 
-## 0.2 AWS Credentials Issues
+## 1.2 AWS Credentials Issues
 
 ### Common Causes
 
@@ -88,12 +88,13 @@ aws sts get-caller-identity
 
 ### Check permissions:
 
-For example `launch-runner` requires at a minimum (see [Usage](./usage.md) for full permissions or our
-[example IAM policy](../examples/aws/sk_iam_policy.json) )
+For example `launch-runner` requires at a minimum:
 
 - ec2:RunInstances
 - ec2:DescribeImages
 - ec2:DescribeInstances
+
+See [Usage](./usage.md) for full permissions or our [example IAM policy](../examples/aws/sk_iam_policy.json)
 
 ### Fixes
 
@@ -102,7 +103,7 @@ For example `launch-runner` requires at a minimum (see [Usage](./usage.md) for f
 
 ---
 
-## 1.0 AMI Not Found / Not Accessible
+## 2.0 AMI Not Found / Not Accessible
 
 ### Symptoms
 
@@ -132,11 +133,11 @@ aws ec2 describe-images --image-ids <ami-id> --region <region>
 
 ---
 
-## 2.0 Simulation Fails to Start
+## 3.0 Simulation Fails to Start
 
 This group of issues is usually related to SimKube configuration files.
 
-## 2.1 Driver Crashes
+## 3.1 Driver Crashes
 
 ### Symptoms
 
@@ -162,9 +163,9 @@ This group of issues is usually related to SimKube configuration files.
 - In CI, setting the `keep-alive` input on the `launch-runner` action to `true` will keep the runner from auto
   terminating allowing you to SSH into the instance and inspect the detailed logs
 
-> [WARNING!] When using `keep-alive` be sure to manually delete your EC2 instance as it **will not** self-terminate!
+> [WARN!] When using `keep-alive` be sure to manually delete your EC2 instance as it **will not** self-terminate!
 
-## 2.2 Missing Configuration Files
+## 3.2 Missing Configuration Files
 
 A default set of hooks is provided in the `run-simulation` CI action. This issue is most common to custom
 configurations, not in CI using `simkube-ci-action`.
@@ -187,7 +188,7 @@ configurations, not in CI using `simkube-ci-action`.
 
 ---
 
-## 3.0 Simulation Runtime Issues
+## 4.0 Simulation Runtime Issues
 
 ## Symptoms
 
@@ -196,17 +197,30 @@ configurations, not in CI using `simkube-ci-action`.
 
 ## Checks
 
-- Check system resources of the machine you are running on
+- Check system resource utilization:
+  - Set `keep-alive` on `launch-runner` if running in CI
+  - SSH into the instance
+  - View resource utilization
+
+    ```sh
+    top
+    ```
+
 - Review simulation logs
+  - pod logs of driver
+
+    ```sh
+    kubectl logs <driver-pod-name>
+    ```
 
 ## Fixes
 
-- Increase instance size
+- Increase instance size or change instance type to meet your simulation needs
 - Validate configuration parameters
 
 ---
 
-## 4.0 Misconfiguration
+## 5.0 Misconfiguration
 
 This is a catch-all and is the most common root cause of simulation failures.
 
@@ -215,11 +229,16 @@ This is a catch-all and is the most common root cause of simulation failures.
 - Incorrect file paths
 - Missing or incorrect CLI flags
 - Mismatched versions (Driver & AMI incompatibility)
-- Missing environment variables
+
+### Checks
+
+- Check all path names
+- Review all CLI flags and/or GitHub Action input fields
+- Review Driver & AMI versions to ensure compatibility
 
 ---
 
-## 5.0 CI Specific Issues
+## 6.0 CI Specific Issues
 
 ### Symptoms
 
@@ -229,6 +248,8 @@ This is a catch-all and is the most common root cause of simulation failures.
 
 - Missing or incorrect secrets
 - Missing or incorrect inputs
+
+See [Usage](./usage.md) and [Options](./options.md) pages for more on secrets and inputs.
 
 ### Fixes
 
