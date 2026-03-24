@@ -19,13 +19,13 @@ Most problems fall into one of the following categories:
 
 ## Quick Diagnosis
 
-| Symptom                    | Likely Cause                  |
-| :------------------------- | :---------------------------- |
-| AMI not found              | Not subscribed / wrong region |
-| Sim fails immediately      | Credentials or permissions    |
-| Starts then crashes        | Driver config                 |
-| Missing file errors        | Hooks or trace files          |
-| Works locally, fails in CI | Config mismatch               |
+| Symptom                       | Likely Cause                  |
+| :---------------------------- | :---------------------------- |
+| ❌ AMI not found              | Not subscribed / wrong region |
+| ⚠️ Sim fails immediately      | Credentials / permissions     |
+| 💥 Starts then crashes        | Driver config                 |
+| 📁 Missing file errors        | Hooks / traces                |
+| 🔁 Works locally, fails in CI | Config mismatches             |
 
 ---
 
@@ -187,9 +187,9 @@ configurations, not in CI using `simkube-ci-action`.
 - Simulation requires a [trace artifact](https://simkube.dev/simkube/docs/adv/traces/) to replay
   - check the path to your trace
 
-    ```sh
-    ls path/to/your/trace
-    ```
+  ```sh
+  ls path/to/your/trace
+  ```
 
 ### Fixes
 
