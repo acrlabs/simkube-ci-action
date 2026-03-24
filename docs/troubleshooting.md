@@ -163,7 +163,7 @@ This group of issues is usually related to SimKube configuration files.
 - In CI, setting the `keep-alive` input on the `launch-runner` action to `true` will keep the runner from auto
   terminating allowing you to SSH into the instance and inspect the detailed logs
 
-> [NOTE!] When using `keep-alive` be sure to manually delete your EC2 instance as it **will not** self-terminate!
+> [!WARNING] When using `keep-alive` be sure to manually delete your EC2 instance as it **will not** self-terminate!
 
 ## 3.2 Missing Configuration Files
 

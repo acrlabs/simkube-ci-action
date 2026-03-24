@@ -94,7 +94,7 @@ up a repo scope PAT.
 11. Select Read and Write access for `Actions` and `Administration` Note: `metadata` will be selected by default
 12. Click `Generate token and request access`
 
-> [NOTE!] For more on setting up and managing PATs see
+> [!NOTE] For more on setting up and managing PATs see
 > [GitHub's documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 
 Add the PAT to your repos GitHub Actions Secrets as `AWS_SECRET_ACCESS_KEY`
@@ -117,7 +117,7 @@ jobs:
           trace-path: path/to/your/trace
 ```
 
-> [NOTE!] The run-simulation action uses `runs-on` tags to target available runners.
+> [!NOTE] The run-simulation action uses `runs-on` tags to target available runners.
 
 ## Next steps
 
