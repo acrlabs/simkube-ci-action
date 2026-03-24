@@ -24,14 +24,14 @@ template: docs.html
 
 Implemented features options:
 
-| Option              | Description                   | Required |
-| :------------------ | :---------------------------- | :------: |
-| **simulation-name** | Name of the simulation to run |    ✅    |
-| **trace-path**      | Path to the trace file        |    ✅    |
-| **duration**        | Simulation duration           |    ❌    |
-| **duration**        | Simulation duration           |    ❌    |
-| **duration**        | Simulation duration           |    ❌    |
-| **speed**           | Simulation speed              |    ❌    |
+| Option               | Description                   | Required |
+| :------------------- | :---------------------------- | :------: |
+| **simulation-name**  | Name of the simulation to run |    ✅    |
+| **trace-path**       | Path to the trace file        |    ✅    |
+| **duration**         | Simulation duration           |    ❌    |
+| **driver-image**     | Specify a driver image        |    ❌    |
+| **driver-verbosity** | log levels for sk-driver      |    ❌    |
+| **speed**            | Simulation speed              |    ❌    |
 
 ## Next steps
 
