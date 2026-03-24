@@ -22,8 +22,8 @@ Most problems fall into one of the following categories:
 | Symptom                    | Likely Cause                  |
 | :------------------------- | :---------------------------- |
 | AMI not found              | Not subscribed / wrong region |
-| Fails immediately          | Credentials or permissions    |
-| Starts then crashes        | Driver issue                  |
+| Sim fails immediately      | Credentials or permissions    |
+| Starts then crashes        | Driver config                 |
 | Missing file errors        | Hooks or trace files          |
 | Works locally, fails in CI | Env/config mismatch           |
 
@@ -37,35 +37,41 @@ Most problems fall into one of the following categories:
 - Errors pulling repos, images or artifacts
 - AWS API calls fail (e.g. launching EC2 instances)
 
-The user should investigate these potential causes:
+Investigate these potential causes:
 
-### GitHub PAT Issues
+## 0.1 GitHub PAT Issues
 
 - Missing or expired Personal Access Token (PAT)
 - Insufficient PAT scope
 - Token not correctly injected into CI
 
-#### Checks
+### Checks
 
 - Verify PAT is set in the repo secrets as `$SIMKUBE_RUNNER_PAT`
 - Confirm scopes:
   - Repo scope with Read and Write access to `Actions` and `Administration`
   - `Metadata` is included by default
-- Try a using a git action using your PAT
+- Manually test your credentials: (e.g. Try a using a git action using your PAT)
 
   ```sh
   git ls-remote https://github.com/org/repo.git
   ```
 
-#### Fixes
+### Fixes
 
-- Regenerate PAT with correct scopes
-- In the repo calling the action Ensure token is configured in GitHub Actions
+- Regenerate a PAT with correct scopes
+- In the repo calling the action Ensure PAT is added as a Secret in GitHub
   - `Settings` -> `Secrets and variables` -> `Actions`
+
+### Reference docs
+
+- [Usage guide](./usage.md) for how to set up PATs
+- [GitHub PAT documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+  for additional documentation
 
 ---
 
-## 0.1 AWS Credentials Issues
+## 0.2 AWS Credentials Issues
 
 ### Common Causes
 
@@ -82,7 +88,8 @@ aws sts get-caller-identity
 
 ### Check permissions:
 
-For example `launch-runner` requires at a minimum
+For example `launch-runner` requires at a minimum (see [Usage](./usage.md) for full permissions or our
+[example IAM policy](../examples/aws/sk_iam_policy.json) )
 
 - ec2:RunInstances
 - ec2:DescribeImages
@@ -99,7 +106,7 @@ For example `launch-runner` requires at a minimum
 
 ### Symptoms
 
-- `InvalidAMIID.NotFound`
+- Commonly `InvalidAMIID.NotFound`
 - AMI not visible in console
 - launch fails immediately
 
@@ -120,14 +127,14 @@ aws ec2 describe-images --image-ids <ami-id> --region <region>
 ### Fixes
 
 - Ensure your organization has subscribed to the AMI product
-- Confirm you're using the correct region + AMI ID combination
-- Verify AMI ID
+- Confirm you're using the correct region + AMI ID combination (AMI IDs are region specific identifiers)
+- Verify AMI ID, we recommend using our safe default whenever possible
 
 ---
 
 ## 2.0 Simulation Fails to Start
 
-This group of issues is usually related to configuration.
+This group of issues is usually related to SimKube configuration files.
 
 ## 2.1 Driver Crashes
 
@@ -140,7 +147,7 @@ This group of issues is usually related to configuration.
 ### Checks
 
 - Inspect driver logs
-- Verify driver image, we recommend using the default driver wherever possible
+- Verify driver image
 
 ### Common Causes
 
@@ -148,10 +155,19 @@ This group of issues is usually related to configuration.
 - Invalid configuration passed to driver (the most common cause)
 - Missing AMI dependencies (if not using the ACRL SimKube AMIs)
 
+### Fixes
+
+- We include some status and minimal logs in the failure summary section of the action output, this will be visible if
+  `run-simulation` returns a non-zero exit code
+- In CI, setting the `keep-alive` input on the `launch-runner` action to `true` will keep the runner from auto
+  terminating allowing you to SSH into the instance and inspect the detailed logs
+
+> [WARNING!] When using `keep-alive` be sure to manually delete your EC2 instance as it **will not** self-terminate!
+
 ## 2.2 Missing Configuration Files
 
-A default set of hooks is provided in the `run-simulation` CI action. This should issue is only common in custom
-configurations, not in `simkube-ci-action`.
+A default set of hooks is provided in the `run-simulation` CI action. This issue is most common to custom
+configurations, not in CI using `simkube-ci-action`.
 
 ### Symptoms
 
@@ -197,7 +213,7 @@ This is a catch-all and is the most common root cause of simulation failures.
 ### Common Issues
 
 - Incorrect file paths
-- Wrong CLI flags
+- Missing or incorrect CLI flags
 - Mismatched versions (Driver & AMI incompatibility)
 - Missing environment variables
 
@@ -211,8 +227,13 @@ This is a catch-all and is the most common root cause of simulation failures.
 
 ### Common Causes
 
-- Missing secrets
-- Missing environment variables
+- Missing or incorrect secrets
+- Missing or incorrect inputs
+
+### Fixes
+
+- Add or update secrets
+- Add or update inputs
 
 ---
 
