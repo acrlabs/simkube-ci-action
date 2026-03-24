@@ -1,27 +1,38 @@
 <!--
 template: docs.html
 -->
+
 # Configuring SimKube CI Action
 
 ## `launch-runner` configuration options
 
-| Option | Description | Required
-|:---|:---|:---|
-| ami-id | AMI ID for SimKube Runner AMI | true |
-| instance-type | EC2 instance type | false |
-| aws-region | AWS region to launch in | true |
-| subnet-id | AWS subnet ID | true |
-| security-group-ids | Space separated security group IDs | true |
-| runner-labels | Comma separated additional labels for the runner | false |
-| simkube-runner-pat | GitHub PAT with repo scope | true |
-| aws-access-key-id | AWS access key ID | true |
-| aws-secret-acccess-key | AWS secret access key | true |
+| Option                     | Description                                      | Required |
+| :------------------------- | :----------------------------------------------- | :------: |
+| **ami-id**                 | AMI ID for SimKube Runner AMI                    |    ✅    |
+| **instance-type**          | EC2 instance type                                |    ❌    |
+| **aws-region**             | AWS region to launch in                          |    ✅    |
+| **subnet-id**              | AWS subnet ID                                    |    ✅    |
+| **security-group-ids**     | Space separated security group IDs               |    ✅    |
+| **runner-labels**          | Comma separated additional labels for the runner |    ❌    |
+| **simkube-runner-pat**     | GitHub PAT with repo scope                       |    ✅    |
+| **aws-access-key-id**      | AWS access key ID                                |    ✅    |
+| **aws-secret-acccess-key** | AWS secret access key                            |    ✅    |
 
 ## `run-simulation` configuration options
 
-| Option | Description | Required
-|:---|:---|:---|
-| simulation-name | Name of the simulation to run | true |
-| trace-path | Path to the trace file | true |
-| duration | Simulation duration | false |
-| speed | Simulation speed | false |
+`run-simulation` exposes a basic set of [skctl](https://simkube.dev/simkube/docs/components/skctl/) options
+
+Implemented features options:
+
+| Option              | Description                   | Required |
+| :------------------ | :---------------------------- | :------: |
+| **simulation-name** | Name of the simulation to run |    ✅    |
+| **trace-path**      | Path to the trace file        |    ✅    |
+| **duration**        | Simulation duration           |    ❌    |
+| **duration**        | Simulation duration           |    ❌    |
+| **duration**        | Simulation duration           |    ❌    |
+| **speed**           | Simulation speed              |    ❌    |
+
+## Next steps
+
+- [Learn about troubleshooting simkube-ci-action](./troubleshooting.md)
