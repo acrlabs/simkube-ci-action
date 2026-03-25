@@ -17,6 +17,7 @@ template: docs.html
 | **simkube-runner-pat**     | GitHub PAT with repo scope                       |    ✅    |
 | **aws-access-key-id**      | AWS access key ID                                |    ✅    |
 | **aws-secret-acccess-key** | AWS secret access key                            |    ✅    |
+| **keep-alive**             | Keep EC2 instance running after sim execution    |    ✅    |
 
 ---
 
