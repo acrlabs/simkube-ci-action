@@ -3,6 +3,8 @@ name: Test run simulation action
 
 on: [workflow_dispatch, pull_request]  # yamllint disable-line rule:truthy
 
+permissions: {}
+
 jobs:
   test-run:
     uses: ./.github/workflows/run.yml
