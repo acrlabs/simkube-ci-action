@@ -38,7 +38,7 @@ jobs:
 
 ### AWS credentials
 
-To use `launch-runner` you will need to create a user in AWS with the following permissions:
+To use `launch-runner` you will need to create a role with the following permissions:
 
 For managing runners in AWS:
 
@@ -63,9 +63,9 @@ For accessing traces in AWS:
 }
 ```
 
-A example of an AWS user policy can be found [here](../examples/aws/sk_iam_policy.json).
+A example of an AWS policy can be found [here](../examples/aws/sk_iam_policy.json).
 
-Once a policy has been added to your user in AWS you can
+Once a policy has been added to your role in AWS you can
 [create a keypair](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-keys-admin-managed.html#admin-create-access-key).
 
 Your `keypair` should be added to your GitHub Actions Secrets as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.

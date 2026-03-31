@@ -23,3 +23,4 @@ These runners are intended for teams that want reliable, repeatable simulation a
 
 - open an issue in the [SimKube GitHub repo](https://github.com/acrlabs/simkube/issues)
 - message us in the [SimKube Slack Channel](https://kubernetes.slack.com/archives/C07LTUB823Z)
+- contact us [directly](https://appliedcomputing.io/contact)

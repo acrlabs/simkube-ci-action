@@ -50,16 +50,6 @@ Investigate these potential causes:
 - Verify PAT is set in the repo secrets as `$SIMKUBE_RUNNER_PAT`
 - Confirm scopes:
   - Repo scope with Read and Write access to `Actions` and `Administration`
-  - `Metadata` is included by default
-- Manually test your credentials: (e.g. Try a using a git action using your PAT)
-
-  ```sh
-  git ls-remote https://github.com/org/repo.git
-  ```
-
-### Fixes
-
-- Regenerate a PAT with correct scopes
 - In the repo calling the action Ensure PAT is added as a Secret in GitHub
   - `Settings` -> `Secrets and variables` -> `Actions`
 

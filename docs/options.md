@@ -35,7 +35,3 @@ Implemented options:
 | **driver-image**     | Specify a driver image        |    ❌    |
 | **driver-verbosity** | log levels for sk-driver      |    ❌    |
 | **speed**            | Simulation speed              |    ❌    |
-
-## Next steps
-
-- [Learn about troubleshooting simkube-ci-action](./troubleshooting.md)
