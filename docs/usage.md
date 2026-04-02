@@ -77,7 +77,7 @@ up a repo scope PAT.
 
 ### Example using a fine grained PAT:
 
-#### Setup the PAT in GitHub:
+#### Setup a PAT in GitHub:
 
 0. Go to user `Settings`
 1. Click `Developer settings`
