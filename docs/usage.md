@@ -118,8 +118,3 @@ jobs:
 ```
 
 > [!NOTE] The run-simulation action uses `runs-on` tags to target available runners.
-
-## Next steps
-
-- [Learn about simkube-ci-action options](./options.md)
-- [Learn about troubleshooting simkube-ci-action](./troubleshooting.md)
