@@ -35,8 +35,9 @@ jobs:
           keep-alive: true  # Turn on keep-alive by adding it here
 ```
 
-> [!WARNING] When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it
-> **will not** self-terminate!
+> [!WARNING]
+> When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it **will not**
+> self-terminate!
 
 To connect to your runner first push an SSH key to it using `ec2-instance-connect`:
 
