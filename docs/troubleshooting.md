@@ -35,8 +35,32 @@ jobs:
           keep-alive: true  # Turn on keep-alive by adding it here
 ```
 
-> [!NOTE] When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it **will
-> not** self-terminate!
+> [!WARNING] When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it
+> **will not** self-terminate!
+
+To connect to your runner first push an SSH key to it using `ec2-instance-connect`:
+
+```sh
+aws ec2-instance-connect send-ssh-public-key \
+  --instance-id <instance-id> \
+  --region <region> \
+  --instance-os-user ubuntu \
+  --ssh-public-key file://~/path/to/your/public/key.pub \
+  --profile <your-profile>
+```
+
+> [!NOTE]
+> [send-ssh-public-key](https://docs.aws.amazon.com/ec2-instance-connect/latest/APIReference/API_SendSSHPublicKey.html)
+> creates a temporary key that lasts for 60 seconds so connect via SSH directly after sending your key.
+
+Connect to the instance via SSH:
+
+```sh
+ssh ubuntu@<instance-public-ip>
+```
+
+If you see "Permission Denied" re-run the `ec2-instance-connect` command above and SSH into them directly after. Your
+key is stored temporarily, it will expire after 60 seconds.
 
 ---
 
@@ -52,7 +76,7 @@ messages in the `launch-runner` GitHub Action logs. Use the sections below to ad
 - `InvalidAMIID.NotFound` - indicates the AMI is invalid or is not accessible
 
 Marketplace AMIs must be subscribed via Marketplace to to be visible. Confirm you're using the correct region + AMI ID
-combination (AMI IDs are region specific identifiers). To check AMI visibility test your ami & region combination:
+combination (AMI IDs are region specific identifiers). To check AMI visibility test your AMI & region combination:
 
 ```sh
 aws ec2 describe-images --image-ids <ami-id> --region <region>
@@ -71,11 +95,11 @@ permissions to perform the action. See [Usage](./usage.md#aws-credentials) for p
 
 ### GitHub PAT Issues
 
-`Bad credentials` or `Failed to generate runner token` during the `Setup SimKube GitHub Action runner` step. All
-indicate issues with the GitHub PAT. Expired PATs, insufficient PAT scope, and invalid PATs will all produce these
-errors. Ensure the repo calling the action has the PAT secret configured correctly as `$SIMKUBE_RUNNER_PAT`, the PAT is
-unexpired and has sufficient scope. Details on how to setup the PAT can be found in the
-[Usage](./usage.md#setup-a-pat-in-github) documentation. Additional documentation GitHub PATs
+`Bad credentials` or `Failed to generate runner token` during the `Setup SimKube GitHub Action runner` step all indicate
+issues with the GitHub PAT. Expired PATs, insufficient PAT scope, and invalid PATs will all produce these errors. Ensure
+the repo calling the action has the PAT secret configured correctly as `$SIMKUBE_RUNNER_PAT`, the PAT is unexpired and
+has sufficient scope. Details on how to setup the PAT can be found in the [Usage](./usage.md#setup-a-pat-in-github)
+documentation. Additional documentation GitHub PATs
 [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 
 ---
