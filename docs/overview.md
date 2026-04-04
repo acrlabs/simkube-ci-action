@@ -1,0 +1,26 @@
+<!--
+template: docs.html
+-->
+
+# SimKube CI Action Overview
+
+[Applied Computing Research Labs](https://appliedcomputing.io) maintains `simkube-ci-action` a custom GitHub Action for
+running simulations on self-hosted GitHub Actions runners that are backed by SimKube AMIs.
+
+These runners are intended for teams that want reliable, repeatable simulation as part of their CI pipelines.
+
+## Quick Start guides
+
+- [Run SimKube in CI](/simkube/docs/infra/ci-sim/)
+
+## Next steps
+
+- [Learn about using simkube-ci-action](./usage.md)
+- [Learn about simkube-ci-action options](./options.md)
+- [Learn about troubleshooting simkube-ci-action](./troubleshooting.md)
+
+## How to get support
+
+- open an issue in the [SimKube GitHub repo](https://github.com/acrlabs/simkube/issues)
+- message us in the [SimKube Slack Channel](https://kubernetes.slack.com/archives/C07LTUB823Z)
+- contact us [directly](https://appliedcomputing.io/contact)

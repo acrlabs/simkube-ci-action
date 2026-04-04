@@ -1,0 +1,7 @@
+---
+nav:
+  - Simkube CI Action:
+      - Overview: docs/overview.md
+      - Usage: docs/usage.md
+      - Options: docs/options.md
+      - Troubleshooting: docs/troubleshooting.md
