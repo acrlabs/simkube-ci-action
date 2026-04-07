@@ -35,9 +35,8 @@ jobs:
           keep-alive: true  # Turn on keep-alive by adding it here
 ```
 
-> [!WARNING]
-> When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it **will not**
-> self-terminate!
+> [!WARNING] When using `keep-alive` be sure to manually delete your EC2 instance when you are done debugging as it
+> **will not** self-terminate!
 
 To connect to your runner first push an SSH key to it using `ec2-instance-connect`:
 
@@ -92,7 +91,7 @@ aws ec2 describe-images --image-ids <ami-id> --region <region>
 
 `UnauthorizedOperation` and `AccessDenied` errors indicate that the role specified is valid but does not have sufficient
 permissions to perform the action. See [Usage](./usage.md#aws-credentials) for permissions or our
-[example IAM policy](../examples/aws/sk_iam_policy.json)
+[example IAM policy](/simkube/docs/ref/aws-iam-policy/)
 
 ### GitHub PAT Issues
 
