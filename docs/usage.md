@@ -63,7 +63,7 @@ For accessing traces in AWS:
 }
 ```
 
-A example of an AWS policy can be found [here](../examples/aws/sk_iam_policy.json).
+A example of an AWS policy can be found [here](/simkube/docs/ref/aws_iam_policy/).
 
 Once a policy has been added to your role in AWS you can
 [create a keypair](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-keys-admin-managed.html#admin-create-access-key).
@@ -94,8 +94,7 @@ up a repo scope PAT.
 11. Select Read and Write access for `Actions` and `Administration` Note: `metadata` will be selected by default
 12. Click `Generate token and request access`
 
-> [!NOTE]
-> For more on setting up and managing PATs see For more on setting up and managing PATs see
+> [!NOTE] For more on setting up and managing PATs see For more on setting up and managing PATs see
 > [GitHub's documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 
 Add the PAT to your repos GitHub Actions Secrets as `AWS_SECRET_ACCESS_KEY`
@@ -118,5 +117,4 @@ jobs:
           trace-path: path/to/your/trace
 ```
 
-> [!NOTE]
-> The run-simulation action uses `runs-on` tags to target available runners.
+> [!NOTE] The run-simulation action uses `runs-on` tags to target available runners.

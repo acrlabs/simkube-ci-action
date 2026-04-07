@@ -91,7 +91,7 @@ aws ec2 describe-images --image-ids <ami-id> --region <region>
 
 `UnauthorizedOperation` and `AccessDenied` errors indicate that the role specified is valid but does not have sufficient
 permissions to perform the action. See [Usage](./usage.md#aws-credentials) for permissions or our
-[example IAM policy](/simkube/docs/ref/aws-iam-policy/)
+[example IAM policy](/simkube/docs/ref/aws_iam_policy/)
 
 ### GitHub PAT Issues
 
