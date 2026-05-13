@@ -1,6 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
+# Get the logs from pods that are in CrashLoopBackOff
+_print_crashloop_logs() {
+    kubectl get pods -A -o json \
+      | jq -r '.items[] | select(.status.containerStatuses[]?.state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace) \(.metadata.name)"' \
+      | while read -r ns pod; do
+          echo "=== $ns/$pod [previous] ==="
+          kubectl logs -n "$ns" "$pod" --all-containers --previous
+          echo "=== $ns/$pod ==="
+          kubectl logs -n "$ns" "$pod" --all-containers
+        done
+}
+export -f _print_crashloop_logs
+
 # Print a command and run it inside a GitHub Actions group
 _run_group() {
     local group_name=$1
@@ -27,3 +40,4 @@ _run_group "🕸️ Get all Nodes in simkube namespace" "kubectl get nodes -n si
 _run_group "📦 All Pods in simkube namespace" "kubectl get pods -n simkube"
 _run_group "📝 Recent events tail=20" "kubectl get events -n simkube --sort-by='.lastTimestamp' | tail -n 20"
 _run_group "🌎 Get all" "kubectl get all --all-namespaces"
+_run_group "❗ Get failing pod logs" "_print_crashloop_logs"
