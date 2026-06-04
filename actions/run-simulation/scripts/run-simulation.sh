@@ -84,22 +84,30 @@ _wait_for_state() {
     local state=""
     local retries=0
 
+    declare -A pending_start
+
     while (( retries < MAX_RETRIES_SIM )); do
         state="$(_get_state)"
+        now=$(date +%s)
 
-        # Exit early if any pods pending > 60s
-        if kubectl get pods -n virtual-default -o json \
-            | jq -e '
-                now as $now
-                | any(.items[];
-                    .status.phase == "Pending"
-                    and (.metadata.creationTimestamp != null)
-                    and (($now - (.metadata.creationTimestamp | fromdateiso8601)) > 60)
-                )
-            '; then
-            echo "Found pod stuck in Pending >60s"
-            exit 1
-        fi
+        pods=$(kubectl get pods -n virtual-default -o json \
+            | jq -r '
+                .items[]
+                | select(.status.phase=="Pending")
+                | .metadata.name
+            ')
+
+        for p in $pods; do
+            if [[ -z "${pending_start["$p"]}" ]]; then
+                pending_start[$p]=$now
+            else
+                pending_duration=$(( now - pending_start[$p] ))
+                if (( pending_duration > 60 )); then
+                    printf "Pod: %s stuck in Pending >60s" "$p"
+                    exit 1
+                fi
+            fi
+        done
 
         if [[ "$state" == "Failed" ]]; then
             printf "Error: Simulation Failed.\n"
