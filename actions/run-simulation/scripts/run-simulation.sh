@@ -109,6 +109,35 @@ kubectl wait --for=jsonpath='{.status.state}'=Running simulation/"$SIMULATION_NA
 printf "✓ Simulation is running!\n"
 
 printf "Waiting for simulation to reach Finished state...\n"
+
+# Watch for pods that get stuck in pending
+declare -A pending_start
+
+while true; do
+  now=$(date +%s)
+
+  pods=$(kubectl get pods -n virtual-default \
+    --no-headers 2>/dev/null | awk '$3=="Pending" {print $1}')
+
+  for p in $pods; do
+    if [ -z "${pending_start[$p]}" ]; then
+      pending_start[$p]=$now
+    else
+      pending_duration=$((now - pending_start[$p]))
+      if [ $pending_duration -gt 60 ]; then
+        echo "Pod $p stuck in Pending >60s"
+        exit 1
+      fi
+    fi
+  done
+
+  state=$(kubectl get simulation "$SIMULATION_NAME" \
+    -o jsonpath='{.status.state}')
+
+  [ "$state" = "Finished" ] && break
+  sleep 5
+done
+
 if ! _wait_for_state "Finished"; then
     exit 1
 fi
