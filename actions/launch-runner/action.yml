@@ -46,6 +46,11 @@ inputs:
     description: AWS secret access key
     required: true
 
+  instance-profile:
+    description: "IAM instance profile to attach to the EC2 instance"
+    required: false
+    default: ""
+
 runs:
   using: composite
   steps:
@@ -68,3 +73,4 @@ runs:
         SECURITY_GROUP_IDS: ${{ inputs.security-group-ids }}
         GITHUB_RUN_ID: ${{ github.run_id }}
         GITHUB_REPOSITORY: ${{ github.repository }}
+        INSTANCE_PROFILE: ${{ inputs.instance-profile }}
