@@ -19,6 +19,11 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: string
 
+      instance-profile:
+        description: "IAM instance profile to attach to the EC2 instance"
+        required: false
+        type: string
+
       aws-region:
         description: AWS region to launch in
         required: true
@@ -98,6 +103,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           subnet-id: ${{ inputs.subnet-id }}
           security-group-ids: ${{ inputs.security-group-ids }}
+          instance-profile: ${{ inputs.instance-profile }}
 
   simulate:
     name: Run Simkube Simulation
