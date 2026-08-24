@@ -40,19 +40,29 @@ TAG_SPECS="${TAG_SPECS}{Key=GitHubRunId,Value=${GITHUB_RUN_ID}},"
 TAG_SPECS="${TAG_SPECS}{Key=ManagedBy,Value=github-actions},"
 TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
+AWS_ARGS=(
+    ec2 run-instances
+    --region "$AWS_REGION"
+    --image-id "$AMI_ID"
+    --instance-type "$INSTANCE_TYPE"
+    --instance-initiated-shutdown-behavior terminate
+    --user-data "$USER_DATA"
+    --tag-specifications "$TAG_SPECS"
+    --subnet-id "$SUBNET_ID"
+    --security-group-ids "$SECURITY_GROUP_IDS"
+)
+
+if [[ -n "${INSTANCE_PROFILE:-}" ]]; then
+    AWS_ARGS+=(
+        --iam-instance-profile "Name=$INSTANCE_PROFILE"
+    )
+fi
+
 # Launch EC2 instance
 printf "Executing: aws ec2 run-instances...\n"
 USER_DATA=$(envsubst < "$GITHUB_ACTION_PATH/scripts/user-data.sh")
-if ! RESPONSE=$(aws ec2 run-instances \
-    --region "$AWS_REGION" \
-    --image-id "$AMI_ID" \
-    --instance-type "$INSTANCE_TYPE" \
-    --instance-initiated-shutdown-behavior terminate \
-    --user-data "$USER_DATA" \
-    --tag-specifications "$TAG_SPECS" \
-    --subnet-id "$SUBNET_ID" \
-    --security-group-ids "$SECURITY_GROUP_IDS" \
-    2>&1); then
+
+if ! RESPONSE=$(aws "${AWS_ARGS[@]}" 2>&1); then
     printf "ERROR: Failed to launch instance\n"
     printf "%s\n" "$RESPONSE"
     exit 1

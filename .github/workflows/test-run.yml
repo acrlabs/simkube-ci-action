@@ -20,6 +20,7 @@ jobs:
       simulation-name: test-sim
       subnet-id: subnet-0cd4625c825e73e61
       trace-path: ./cronjob.sktrace
+      instance-profile: gran_prix_scenario_runner
     secrets:
       SIMKUBE_RUNNER_PAT: ${{ secrets.SIMKUBE_RUNNER_PAT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
