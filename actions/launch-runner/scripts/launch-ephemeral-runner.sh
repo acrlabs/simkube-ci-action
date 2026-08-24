@@ -40,6 +40,8 @@ TAG_SPECS="${TAG_SPECS}{Key=GitHubRunId,Value=${GITHUB_RUN_ID}},"
 TAG_SPECS="${TAG_SPECS}{Key=ManagedBy,Value=github-actions},"
 TAG_SPECS="${TAG_SPECS}{Key=Ephemeral,Value=true}]"
 
+USER_DATA=$(envsubst < "$GITHUB_ACTION_PATH/scripts/user-data.sh")
+
 AWS_ARGS=(
     ec2 run-instances
     --region "$AWS_REGION"
@@ -60,8 +62,6 @@ fi
 
 # Launch EC2 instance
 printf "Executing: aws ec2 run-instances...\n"
-USER_DATA=$(envsubst < "$GITHUB_ACTION_PATH/scripts/user-data.sh")
-
 if ! RESPONSE=$(aws "${AWS_ARGS[@]}" 2>&1); then
     printf "ERROR: Failed to launch instance\n"
     printf "%s\n" "$RESPONSE"
