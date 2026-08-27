@@ -2,8 +2,10 @@
 set -euo pipefail
 
 # Make sure skctl can be found
-export PATH="/home/ubuntu/.cargo/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
+if ! command -v skctl > /dev/null 2>&1; then
+    export PATH="/home/ubuntu/.cargo/bin:$PATH"
+    export PATH="/usr/local/bin:$PATH"
+fi
 
 # Copy trace file to expected location
 sudo mkdir -p /data
